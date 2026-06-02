@@ -1,42 +1,111 @@
-import React from 'react'
-import { Link } from "react-router-dom";
+import React, { useState, useEffect, useRef } from 'react'
+import { useLocation } from "react-router-dom";
+import NavLogo from "./NavLogo";
+import NavSignUp from "./NavSignUp";
+import NavSignIn from "./NavSignIn";
+import SearchBar from "./SearchBar";
+import AddButton from "./AddButton";
+import NavLinks from "./NavLinks";
+import HamburgerButton from "./HamburgerButton";
 
 const NavBar = () => {
+  const location = useLocation();
+  const isLanding = location.pathname === "/";
+  const [isOpen, setIsOpen] = useState(false);
+  const navRef = useRef(null);
+
+  // Lock body scroll when mobile menu is open
+  useEffect(() => {
+    document.body.style.overflow = isOpen ? 'hidden' : '';
+    return () => { document.body.style.overflow = ''; };
+  }, [isOpen]);
+
+  // Close menu on route change
+  useEffect(() => {
+    setIsOpen(false);
+  }, [location.pathname]);
+
+  const closeMenu = () => setIsOpen(false);
+  const toggleMenu = () => setIsOpen(prev => !prev);
+  const navHeight = navRef.current?.offsetHeight ?? 56;
+
   return (
-    <nav className="sticky top-0 z-50 border-b border-light-border-subtle bg-light-bg-primary/95 font-sans backdrop-blur-sm dark:border-dark-border dark:bg-dark-bg-primary/90">
-      <div className="mx-auto flex max-w-container-page items-center justify-between px-6 py-3">
-        {/* Logo */}
-        <Link
-          to="/"
-          className="group flex items-center gap-2 transition-opacity hover:opacity-80 active:opacity-70"
-        >
-          {/* icon placeholder — swap with FA icon later */}
-          <span className="flex size-8 items-center justify-center rounded-md bg-light-accent text-sm font-semibold text-white dark:bg-dark-accent">
-            T
-          </span>
-          <span className="text-lg font-semibold tracking-tight text-light-text-primary dark:text-dark-text-primary">
-            TechFeed
-          </span>
-        </Link>
+    <>
+      <nav
+        ref={navRef}
+        aria-label="Main navigation"
+        className="sticky top-0 z-50 border-b border-light-border-subtle bg-light-bg-primary/95 font-sans backdrop-blur-sm dark:border-dark-border dark:bg-dark-bg-primary/90"
+      >
+        <div className="mx-auto flex max-w-container-page items-center justify-between px-6 py-3">
 
-        {/* Actions */}
-        <div className="flex items-center gap-3">
-          <Link
-            to="/signup"
-            className="rounded-md border border-light-border px-4 py-2 text-sm font-medium text-light-text-primary shadow-sm transition-all duration-150 hover:border-light-accent hover:bg-light-accent-subtle hover:text-light-accent active:scale-[0.97] active:bg-light-bg-tertiary dark:border-dark-border dark:text-dark-text-primary dark:hover:border-dark-accent dark:hover:bg-dark-accent-subtle dark:hover:text-dark-accent dark:active:bg-dark-bg-tertiary"
-          >
-            Sign Up
-          </Link>
-          <Link
-            to="/signin"
-            className="rounded-md bg-light-accent px-4 py-2 text-sm font-semibold text-white shadow-sm transition-all duration-150 hover:bg-light-accent-hover hover:shadow-md active:scale-[0.97] dark:bg-dark-accent dark:text-dark-bg-primary dark:hover:bg-dark-accent-hover"
-          >
-            Sign In
-          </Link>
+          <NavLogo />
+
+          {/* Desktop: Nav Links */}
+          {!isLanding && (
+            <div className="hidden md:flex items-center space-x-6">
+              <NavLinks />
+            </div>
+          )}
+
+          <div className="flex items-center gap-3">
+            {/* Desktop: Actions */}
+            <div className="hidden md:flex items-center gap-3">
+              {isLanding ? (
+                <>
+                  <NavSignUp />
+                  <NavSignIn />
+                </>
+              ) : (
+                <>
+                  <div className="w-56">
+                    <SearchBar />
+                  </div>
+                  <AddButton />
+                  <NavSignUp />
+                </>
+              )}
+            </div>
+
+            {/* Mobile: Hamburger */}
+            <HamburgerButton isOpen={isOpen} onClick={toggleMenu} />
+          </div>
         </div>
-      </div>
-    </nav>
-  )
-}
+      </nav>
 
-export default NavBar
+      {/* ── Mobile Overlay ── */}
+      <div
+        aria-hidden={!isOpen}
+        style={{ top: navHeight }}
+        className={`fixed left-0 right-0 bottom-0 z-40 overflow-y-auto bg-light-bg-primary transition-all duration-300 ease-out md:hidden dark:bg-dark-bg-primary ${
+          isOpen
+            ? 'pointer-events-auto visible opacity-100 translate-y-0'
+            : 'pointer-events-none invisible opacity-0 -translate-y-2'
+        }`}
+      >
+        {isLanding ? (
+          <div className="flex flex-col gap-4 px-6 py-8">
+            <NavSignUp onClick={closeMenu} />
+            <NavSignIn onClick={closeMenu} />
+          </div>
+        ) : (
+          <div className="flex flex-col gap-5 px-6 py-4">
+            <div className="flex justify-end">
+              <NavSignUp onClick={closeMenu} />
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="flex-1">
+                <SearchBar />
+              </div>
+              <AddButton onClick={closeMenu} />
+            </div>
+            <nav className="flex flex-col gap-1 border-t border-light-border pt-5 dark:border-dark-border">
+              <NavLinks onClick={closeMenu} />
+            </nav>
+          </div>
+        )}
+      </div>
+    </>
+  );
+};
+
+export default NavBar;

@@ -1,4 +1,4 @@
-# Frontpage — [Your Name]
+# Frontpage — [Henry]
 
 A customizable content aggregator that pulls RSS and Atom feeds into one well-designed reading dashboard.
 
@@ -11,6 +11,9 @@ A customizable content aggregator that pulls RSS and Atom feeds into one well-de
 ## Overview
 
 <!-- Brief description of your implementation. What did you build? What's the experience like? -->
+Today's session focused on project scaffolding and landing page implementation. The React + Vite project was initialized
+  from scratch, routing was configured, a full design system (light/dark themes) was established, and a complete landing page  was built with animated sections. Placeholder pages were created for Sign Up, Sign In, Guest Mode, and the main Home (feed
+  reader) page.
 
 ### Tech Stack
 
