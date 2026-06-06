@@ -1,55 +1,69 @@
 import React from 'react'
-import { CodeXml, ShieldCheck, Rocket } from "lucide-react";
+import { Rss, LayoutGrid, Zap, Globe } from "lucide-react";
 import FeatureCard from "./FeatureCard";
 
 const iconMap = {
-  "code-slash": CodeXml,
-  "shield-check": ShieldCheck,
-  "rocket-launch": Rocket,
+  "rss": Rss,
+  "layout-grid": LayoutGrid,
+  "zap": Zap,
+  "globe": Globe,
 };
 
 const features = [
   {
     id: 1,
-    icon: "code-slash",
-    title: "Master Modern Frameworks",
+    icon: "rss",
+    title: "All your feeds, unified",
     description:
-      "Stay ahead of the curve with daily updates on the JavaScript ecosystem and web development best practices.",
+      "Add any RSS or Atom feed and see everything in one clean timeline. No more tab-hopping between blogs, newsletters, and changelogs.",
   },
   {
     id: 2,
-    icon: "shield-check",
-    title: "AI & Cybersecurity Trends",
+    icon: "layout-grid",
+    title: "Read your way",
     description:
-      "Monitor real-time breakthroughs in artificial intelligence and the latest strategies for securing your software.",
+      "Switch between a dense list, magazine cards, or a full reader view. Your layout, your pace  one preference for all feeds or per-category.",
   },
   {
     id: 3,
-    icon: "rocket-launch",
-    title: "Build & Launch",
+    icon: "zap",
+    title: "Built for speed readers",
     description:
-      "Discover actionable insights, product strategies, and tech news to help turn your next big idea into reality.",
+      "Keyboard shortcuts, mark-all-read, and smart filtering let you triage hundreds of items in minutes. Stay informed without the overwhelm.",
+  },
+  {
+    id: 4,
+    icon: "globe",
+    title: "Try before you commit",
+    description:
+      "Explore a fully populated dashboard as a guest  no account needed. 19 curated sources across 5 categories, ready the moment you click.",
   },
 ];
 
 const FeatureHighlights = () => {
   return (
-    <section className="bg-light-bg-secondary px-6 py-20 font-sans md:py-28 dark:bg-dark-bg-secondary">
-      <div className="mx-auto flex max-w-container-page flex-col items-center gap-12">
-        <div className="max-w-lg text-center">
-          <h2 className="text-2xl font-bold tracking-tight text-light-text-primary dark:text-dark-text-primary">
-            Everything you need to stay informed
-          </h2>
-          <p className="mt-3 text-sm leading-relaxed text-light-text-secondary dark:text-dark-text-secondary">
-            Curated feeds, smart filtering, and a reading experience built for focus.
-          </p>
+    <section className="bg-light-bg-secondary px-6 py-24 md:py-32 dark:bg-dark-bg-secondary">
+      <div className="mx-auto flex max-w-container-page flex-col gap-16">
+        <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+          <div className="max-w-lg space-y-3">
+            <h2 className="font-serif text-4xl leading-[1.1] tracking-[-0.02em] text-light-text-primary md:text-5xl dark:text-dark-text-primary">
+              Everything you need to stay informed
+            </h2>
+            <p className="font-sans text-base leading-relaxed text-light-text-secondary dark:text-dark-text-secondary">
+              Curated feeds, smart filtering, and a reading experience built for focus.
+            </p>
+          </div>
+          <span className="hidden font-sans text-xs tracking-widest text-light-text-tertiary uppercase md:block dark:text-dark-text-tertiary">
+            Features
+          </span>
         </div>
 
-        <div className="flex w-full flex-col gap-5 md:flex-row">
+        <div className="grid gap-0 md:grid-cols-4">
           {features.map((feature, index) => (
             <FeatureCard
               key={feature.id}
               icon={iconMap[feature.icon]}
+              number={`0${feature.id}`}
               title={feature.title}
               description={feature.description}
               index={index}
