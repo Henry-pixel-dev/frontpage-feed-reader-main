@@ -4,12 +4,15 @@ import { motion, AnimatePresence } from "framer-motion"
 import NavBar from "../components/NavBar"
 import Sidebar from "../components/Sidebar"
 import FeedToolbar from "../components/FeedToolbar"
+import ArticleModal from "../components/ArticleModal"
 
 const FeedLayout = () => {
   const [filter, setFilter] = useState({ type: null, value: null })
   const [feedContent, setFeedContent] = useState(null)
   const [loading, setLoading] = useState(false)
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [selectedArticle, setSelectedArticle] = useState(null)
+  const [viewMode, setViewMode] = useState('list')
 
   const clearFeedContent = () => setFeedContent(null)
 
@@ -84,18 +87,26 @@ const FeedLayout = () => {
           )}
         </AnimatePresence>
 
-        <div className="flex flex-1 flex-col overflow-hidden">
+        <div className="flex flex-1 flex-col overflow-hidden bg-light-bg-secondary dark:bg-dark-bg-primary">
           <div className="shrink-0">
-            <FeedToolbar onToggleSidebar={() => setSidebarOpen(true)} />
+            <FeedToolbar onToggleSidebar={() => setSidebarOpen(true)} viewMode={viewMode} setViewMode={setViewMode} />
           </div>
 
-          <main className="flex-1 overflow-y-auto">
+          <main className="flex-1 overflow-y-auto bg-light-bg-secondary dark:bg-dark-bg-primary">
             <div className="mx-auto max-w-container-feed px-4 py-4 sm:px-6 sm:py-6">
-              <Outlet context={{ filter, fetchFeed, feedContent, clearFeedContent, loading }} />
+              <Outlet context={{ filter, fetchFeed, feedContent, clearFeedContent, loading, selectArticle: setSelectedArticle, viewMode }} />
             </div>
           </main>
         </div>
       </div>
+      <AnimatePresence>
+        {selectedArticle && (
+          <ArticleModal
+            article={selectedArticle}
+            onClose={() => setSelectedArticle(null)}
+          />
+        )}
+      </AnimatePresence>
     </div>
   )
 }

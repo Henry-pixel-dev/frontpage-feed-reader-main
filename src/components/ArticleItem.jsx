@@ -1,10 +1,13 @@
 import React from 'react'
 import { ExternalLink } from "lucide-react"
 
-const ArticleItem = ({ title, summary, author, publishedAt, url }) => {
+const ArticleItem = ({ title, summary, author, publishedAt, url, onTitleClick }) => {
   return (
     <div className="flex flex-col gap-2.5 sm:gap-3 rounded-lg border border-light-border-subtle bg-light-surface p-4 sm:p-6 transition-colors duration-150 hover:border-light-border dark:border-dark-border-subtle dark:bg-dark-surface dark:hover:border-dark-border">
-      <h3 className="text-base sm:text-lg font-medium leading-snug text-light-text-primary dark:text-dark-text-primary">
+      <h3
+        onClick={onTitleClick}
+        className="cursor-pointer text-base sm:text-lg font-medium leading-snug text-light-text-primary transition-colors hover:text-light-accent dark:text-dark-text-primary dark:hover:text-dark-accent"
+      >
         {title}
       </h3>
 

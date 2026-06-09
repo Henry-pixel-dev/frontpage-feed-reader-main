@@ -16,7 +16,7 @@ function shuffle(array) {
 }
 
 const GuestMode = () => {
-  const { filter, fetchFeed, feedContent, clearFeedContent, loading } = useOutletContext()
+  const { filter, fetchFeed, feedContent, clearFeedContent, loading, selectArticle, viewMode } = useOutletContext()
 
   const shuffledFeeds = useMemo(() => {
     const allFeeds = sampleFeeds.categories.flatMap((category) =>
@@ -57,9 +57,15 @@ const GuestMode = () => {
         </h1>
       )}
 
-      <div className="flex w-full flex-col gap-3">
+      <div className={`w-full ${
+        viewMode === 'grid'
+          ? 'grid grid-cols-1 sm:grid-cols-2 gap-3'
+          : 'flex flex-col gap-3'
+      }`}>
         {loading ? (
-          <div className="flex flex-col space-y-3 items-center justify-center py-20">
+          <div className={`flex flex-col space-y-3 items-center justify-center py-20 ${
+            viewMode === 'grid' ? 'sm:col-span-2' : ''
+          }`}>
             <PulseLoader color="#6b7280" size={10} />
             <span className="ml-3 text-sm text-light-text-secondary dark:text-dark-text-secondary">Loading feed...</span>
           </div>
@@ -72,6 +78,7 @@ const GuestMode = () => {
               author={article.author}
               publishedAt={article.publishedAt}
               url={article.url}
+              onTitleClick={() => selectArticle(article)}
             />
           ))
         ) : (
