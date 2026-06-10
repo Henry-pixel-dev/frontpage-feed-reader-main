@@ -5,6 +5,7 @@ import { PulseLoader } from "react-spinners"
 import sampleFeeds from "../../data/sample-feeds.json"
 import ArticleCard from "../components/ArticleCard"
 import ArticleItem from "../components/ArticleItem"
+import GuestBanner from "../components/GuestBanner"
 
 function shuffle(array) {
   const arr = [...array]
@@ -16,7 +17,7 @@ function shuffle(array) {
 }
 
 const GuestMode = () => {
-  const { filter, fetchFeed, feedContent, clearFeedContent, loading, selectArticle, viewMode } = useOutletContext()
+  const { filter, fetchFeed, feedContent, clearFeedContent, loading, selectArticle, viewMode, debouncedSearchQuery, savedArticles, toggleSaveArticle } = useOutletContext()
 
   const shuffledFeeds = useMemo(() => {
     const allFeeds = sampleFeeds.categories.flatMap((category) =>
@@ -29,17 +30,24 @@ const GuestMode = () => {
   }, [])
 
   const visibleFeeds = useMemo(() => {
-    if (filter.type === null) {
-      return shuffledFeeds
-    }
+    let feeds = shuffledFeeds
+
     if (filter.type === "category") {
-      return shuffledFeeds.filter((feed) => feed.category === filter.value)
+      feeds = feeds.filter((feed) => feed.category === filter.value)
+    } else if (filter.type === "feed") {
+      feeds = feeds.filter((feed) => feed.title === filter.value)
     }
-    if (filter.type === "feed") {
-      return shuffledFeeds.filter((feed) => feed.title === filter.value)
+
+    if (debouncedSearchQuery.trim()) {
+      const query = debouncedSearchQuery.toLowerCase()
+      feeds = feeds.filter((feed) =>
+        feed.title.toLowerCase().includes(query) ||
+        feed.description?.toLowerCase().includes(query)
+      )
     }
-    return shuffledFeeds
-  }, [filter, shuffledFeeds])
+
+    return feeds
+  }, [filter, shuffledFeeds, debouncedSearchQuery])
 
   return (
     <div className="flex min-h-[60vh] flex-col items-start gap-6 font-sans">
@@ -69,6 +77,26 @@ const GuestMode = () => {
             <PulseLoader color="#6b7280" size={10} />
             <span className="ml-3 text-sm text-light-text-secondary dark:text-dark-text-secondary">Loading feed...</span>
           </div>
+        ) : filter.type === "saved" ? (
+          savedArticles.length === 0 ? (
+            <p className="text-sm text-light-text-secondary dark:text-dark-text-secondary py-10 text-center w-full">
+              No saved articles yet
+            </p>
+          ) : (
+            savedArticles.map((article, index) => (
+              <ArticleItem
+                key={article.url || index}
+                title={article.title}
+                summary={article.summary}
+                author={article.author}
+                publishedAt={article.publishedAt}
+                url={article.url}
+                onTitleClick={() => selectArticle(article)}
+                isSaved={true}
+                onToggleSave={() => toggleSaveArticle(article)}
+              />
+            ))
+          )
         ) : feedContent ? (
           feedContent.map((article, index) => (
             <ArticleItem
@@ -79,24 +107,33 @@ const GuestMode = () => {
               publishedAt={article.publishedAt}
               url={article.url}
               onTitleClick={() => selectArticle(article)}
+              isSaved={savedArticles.some((a) => a.url === article.url)}
+              onToggleSave={() => toggleSaveArticle(article)}
             />
           ))
         ) : (
-          visibleFeeds.map((feed) => (
-            <ArticleCard
-              key={feed.feedUrl}
-              title={feed.title}
-              feedUrl={feed.feedUrl}
-              siteUrl={feed.siteUrl}
-              description={feed.description}
-              format={feed.format}
-              notes={feed.notes}
-              category={feed.category}
-              onCardClick={fetchFeed}
-            />
-          ))
+          visibleFeeds.length === 0 ? (
+            <p className="text-sm text-light-text-secondary dark:text-dark-text-secondary py-10 text-center w-full">
+              No feeds found for &ldquo;{debouncedSearchQuery}&rdquo;
+            </p>
+          ) : (
+            visibleFeeds.map((feed) => (
+              <ArticleCard
+                key={feed.feedUrl}
+                title={feed.title}
+                feedUrl={feed.feedUrl}
+                siteUrl={feed.siteUrl}
+                description={feed.description}
+                format={feed.format}
+                notes={feed.notes}
+                category={feed.category}
+                onCardClick={fetchFeed}
+              />
+            ))
+          )
         )}
       </div>
+      <GuestBanner />
     </div>
   )
 }

@@ -5,9 +5,13 @@ import SidebarItem from "./SidebarItem"
 import CategoryGroup from "./CategoryGroup"
 import SidebarFooter from "./SidebarFooter"
 
-const Sidebar = ({ filter, setFilter }) => {
+const Sidebar = ({ filter, setFilter, savedCount }) => {
   const handleAllItems = () => {
     setFilter({ type: null, value: null })
+  }
+
+  const handleSaved = () => {
+    setFilter({ type: "saved", value: "Saved" })
   }
 
   return (
@@ -20,7 +24,13 @@ const Sidebar = ({ filter, setFilter }) => {
           active={filter.type === null}
           onClick={handleAllItems}
         />
-        <SidebarItem icon={Bookmark} label="Saved" count={3} />
+        <SidebarItem
+          icon={Bookmark}
+          label="Saved"
+          count={savedCount}
+          active={filter.type === "saved"}
+          onClick={handleSaved}
+        />
 
         <div className="my-2 border-t border-light-border-subtle dark:border-dark-border-subtle" />
 

@@ -1,7 +1,7 @@
 import React from 'react'
 import { Search } from "lucide-react"
 
-const SearchBar = () => {
+const SearchBar = ({ searchQuery, setSearchQuery }) => {
   return (
     <div className="relative flex items-center">
       <Search
@@ -12,6 +12,9 @@ const SearchBar = () => {
         type="search"
         placeholder="Search articles"
         aria-label="Search articles"
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+
         className="h-9 w-full rounded-md border border-light-border bg-light-bg-secondary pl-9 pr-10 text-sm text-light-text-primary placeholder:text-light-text-tertiary focus:border-light-accent focus:outline-none focus:ring-1 focus:ring-light-accent dark:border-dark-border dark:bg-dark-bg-secondary dark:text-dark-text-primary dark:placeholder:text-dark-text-tertiary dark:focus:border-dark-accent dark:focus:ring-dark-accent"
       />
       <kbd

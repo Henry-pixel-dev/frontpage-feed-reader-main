@@ -8,7 +8,7 @@ import AddButton from "./AddButton";
 import NavLinks from "./NavLinks";
 import HamburgerButton from "./HamburgerButton";
 
-const NavBar = () => {
+const NavBar = ({ searchQuery, setSearchQuery }) => {
   const location = useLocation();
   const isLanding = location.pathname === "/";
   const [isOpen, setIsOpen] = useState(false);
@@ -58,7 +58,7 @@ const NavBar = () => {
               ) : (
                 <>
                   <div className="w-56">
-                    <SearchBar />
+                    <SearchBar searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
                   </div>
                   <AddButton />
                   <NavSignUp />
@@ -94,7 +94,7 @@ const NavBar = () => {
             </div>
             <div className="flex items-center gap-3">
               <div className="flex-1">
-                <SearchBar />
+                <SearchBar searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
               </div>
               <AddButton onClick={closeMenu} />
             </div>

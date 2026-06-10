@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react'
+import React, { useState, useCallback, useEffect } from 'react'
 import { Outlet } from "react-router-dom"
 import { motion, AnimatePresence } from "framer-motion"
 import NavBar from "../components/NavBar"
@@ -13,6 +13,36 @@ const FeedLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [selectedArticle, setSelectedArticle] = useState(null)
   const [viewMode, setViewMode] = useState('list')
+  const [searchQuery, setSearchQuery] = useState('')
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('')
+  const [savedArticles, setSavedArticles] = useState(() => {
+    const stored = sessionStorage.getItem('savedArticles')
+    return stored ? JSON.parse(stored) : []
+  })
+
+  useEffect(() => {
+    sessionStorage.setItem('savedArticles', JSON.stringify(savedArticles))
+  }, [savedArticles])
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery)
+    }, 300)
+
+    return () => {
+      clearTimeout(handler)
+    }
+  }, [searchQuery])
+
+  const toggleSaveArticle = useCallback((article) => {
+    setSavedArticles((prev) => {
+      const exists = prev.some((a) => a.url === article.url)
+      if (exists) {
+        return prev.filter((a) => a.url !== article.url)
+      }
+      return [...prev, article]
+    })
+  }, [])
 
   const clearFeedContent = () => setFeedContent(null)
 
@@ -40,12 +70,12 @@ const FeedLayout = () => {
 
   return (
     <div className="flex h-screen flex-col font-sans">
-      <NavBar />
+      <NavBar  searchQuery={searchQuery} setSearchQuery={setSearchQuery}/>
 
       <div className="flex flex-1 overflow-hidden">
         {/* Desktop sidebar — always visible at md+ */}
         <div className="hidden md:block w-sidebar shrink-0 overflow-y-auto border-r border-light-border-subtle bg-light-bg-primary dark:border-dark-border dark:bg-dark-bg-primary">
-          <Sidebar filter={filter} setFilter={setFilter} />
+          <Sidebar filter={filter} setFilter={setFilter} savedCount={savedArticles.length} />
         </div>
 
         {/* Mobile sidebar — slide-over overlay */}
@@ -94,7 +124,7 @@ const FeedLayout = () => {
 
           <main className="flex-1 overflow-y-auto bg-light-bg-secondary dark:bg-dark-bg-primary">
             <div className="mx-auto max-w-container-feed px-4 py-4 sm:px-6 sm:py-6">
-              <Outlet context={{ filter, fetchFeed, feedContent, clearFeedContent, loading, selectArticle: setSelectedArticle, viewMode }} />
+              <Outlet context={{ filter, fetchFeed, feedContent, clearFeedContent, loading, selectArticle: setSelectedArticle, viewMode, debouncedSearchQuery, savedArticles, toggleSaveArticle }} />
             </div>
           </main>
         </div>

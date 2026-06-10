@@ -1,0 +1,40 @@
+DESIGN SYSTEM SUMMARY
+===================
+
+1. COLOR VARIABLES - LIGHT MODE
+-------------------------------
+  --color-light-bg-primary: #FFFFFF;
+  --color-light-bg-secondary: #F8F9FA;
+  --color-light-bg-tertiary: #F1F3F5;
+  --color-light-surface: #FFFFFF;
+  --color-light-border: #E1E4E8;
+  --color-light-border-subtle: #ECEEF0;
+  --color-light-text-primary: #1A1D21;
+  --color-light-text-secondary: #57606A;
+  --color-light-text-tertiary: #8B949E;
+  --color-light-accent: #2563EB;
+  --color-light-accent-hover: #1D4ED8;
+  --color-light-accent-subtle: #EFF6FF;
+  --color-light-success: #16A34A;
+  --color-light-warning: #CA8A04;
+  --color-light-error: #DC2626;
+  --color-light-unread: #2563EB;
+
+2. COLOR VARIABLES - DARK MODE
+-------------------------------
+  --color-dark-bg-primary: #0D1117;
+  --color-dark-bg-secondary: #161B22;
+  --color-dark-bg-tertiary: #21262D;
+  --color-dark-surface: #161B22;
+  --color-dark-border: #30363D;
+  --color-dark-border-subtle: #21262D;
+  --color-dark-text-primary: #E6EDF3;
+  --color-dark-text-secondary: #8B949E;
+  --color-dark-text-tertiary: #6E7681;
+  --color-dark-accent: #58A6FF;
+  --color-dark-accent-hover: #79C0FF;
+  --color-dark-accent-subtle: #1A2332;
+  --color-dark-success: #3FB950;
+  --color-dark-warning: #D29922;
+  --color-dark-error: #F85149;
+  --color-dark-unread: #58A6FF;
