@@ -29,6 +29,16 @@ const GuestMode = () => {
     return shuffle(allFeeds)
   }, [])
 
+  const filteredArticles = useMemo(() => {
+    if (!feedContent) return null
+    if (!debouncedSearchQuery.trim()) return feedContent
+
+    const query = debouncedSearchQuery.toLowerCase()
+    return feedContent.filter((article) =>
+      article.title?.toLowerCase().includes(query)
+    )
+  }, [feedContent, debouncedSearchQuery])
+
   const visibleFeeds = useMemo(() => {
     let feeds = shuffledFeeds
 
@@ -51,7 +61,7 @@ const GuestMode = () => {
 
   return (
     <div className="flex min-h-[60vh] flex-col items-start gap-6 font-sans">
-      {feedContent ? (
+      {filteredArticles ? (
         <button
           onClick={clearFeedContent}
           className="flex items-center gap-1.5 text-sm font-medium text-light-text-secondary transition-colors hover:text-light-text-primary dark:text-dark-text-secondary dark:hover:text-dark-text-primary"
@@ -97,20 +107,26 @@ const GuestMode = () => {
               />
             ))
           )
-        ) : feedContent ? (
-          feedContent.map((article, index) => (
-            <ArticleItem
-              key={article.url || index}
-              title={article.title}
-              summary={article.summary}
-              author={article.author}
-              publishedAt={article.publishedAt}
-              url={article.url}
-              onTitleClick={() => selectArticle(article)}
-              isSaved={savedArticles.some((a) => a.url === article.url)}
-              onToggleSave={() => toggleSaveArticle(article)}
-            />
-          ))
+        ) : filteredArticles ? (
+          filteredArticles.length === 0 ? (
+            <p className="text-sm text-light-text-secondary dark:text-dark-text-secondary py-10 text-center w-full">
+              No articles found for &ldquo;{debouncedSearchQuery}&rdquo;
+            </p>
+          ) : (
+            filteredArticles.map((article, index) => (
+              <ArticleItem
+                key={article.url || index}
+                title={article.title}
+                summary={article.summary}
+                author={article.author}
+                publishedAt={article.publishedAt}
+                url={article.url}
+                onTitleClick={() => selectArticle(article)}
+                isSaved={savedArticles.some((a) => a.url === article.url)}
+                onToggleSave={() => toggleSaveArticle(article)}
+              />
+            ))
+          )
         ) : (
           visibleFeeds.length === 0 ? (
             <p className="text-sm text-light-text-secondary dark:text-dark-text-secondary py-10 text-center w-full">
