@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { useLocation } from "react-router-dom";
+import { useLocation, Link } from "react-router-dom";
 import NavLogo from "./NavLogo";
 import NavSignUp from "./NavSignUp";
 import NavSignIn from "./NavSignIn";
@@ -11,6 +11,7 @@ import HamburgerButton from "./HamburgerButton";
 const NavBar = ({ searchQuery, setSearchQuery }) => {
   const location = useLocation();
   const isLanding = location.pathname === "/";
+  const isAuth = location.pathname === "/signup" || location.pathname === "/signin";
   const [isOpen, setIsOpen] = useState(false);
   const navRef = useRef(null);
 
@@ -28,6 +29,25 @@ const NavBar = ({ searchQuery, setSearchQuery }) => {
   const closeMenu = () => setIsOpen(false);
   const toggleMenu = () => setIsOpen(prev => !prev);
   const navHeight = navRef.current?.offsetHeight ?? 56;
+
+  if (isAuth) {
+    return (
+      <nav
+        aria-label="Main navigation"
+        className="sticky top-0 z-50 border-b border-light-border-subtle bg-light-bg-primary/95 font-sans backdrop-blur-sm dark:border-dark-border dark:bg-dark-bg-primary/90"
+      >
+        <div className="mx-auto flex max-w-container-page items-center px-6 py-3">
+          <Link
+            to="/"
+            aria-label="Frontpage home"
+            className="flex size-8 items-center justify-center rounded-md bg-light-text-primary font-serif text-lg italic text-white transition-opacity hover:opacity-80 active:opacity-70 dark:bg-dark-text-primary dark:text-dark-bg-primary"
+          >
+            f
+          </Link>
+        </div>
+      </nav>
+    );
+  }
 
   return (
     <>
