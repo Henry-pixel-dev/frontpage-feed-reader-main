@@ -17,6 +17,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import VerifyEmailPage from './pages/VerifyEmailPage';
 import PublicOnlyRoute from './components/PublicOnlyRoute';
 import ForgotPassword from './pages/ForgotPassword'
+import ResetPasswordPage from './pages/ResetPasswordPage'
 
 
 const App = () => {
@@ -31,6 +32,7 @@ const App = () => {
             <Route path="/signup" element={<SignUpPage />} />
             <Route path="/signin" element={<SignIn />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPasswordPage />} />
           </Route>
 
           <Route element={<ProtectedRoute />}>

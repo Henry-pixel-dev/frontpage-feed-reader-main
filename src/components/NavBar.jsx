@@ -13,7 +13,7 @@ import { useAuth } from '../context/AuthContext';
 const NavBar = ({ searchQuery, setSearchQuery }) => {
   const location = useLocation();
   const isLanding = location.pathname === "/";
-  const isAuth = location.pathname === "/signup" || location.pathname === "/signin";
+  const isAuth = location.pathname === "/signup" || location.pathname === "/signin" || location.pathname === "/forgot-password"  || location.pathname === "/verify-email" || location.pathname === "/reset-password";
   const [isOpen, setIsOpen] = useState(false);
   const navRef = useRef(null);
   const { user, loading, signOut } = useAuth();
