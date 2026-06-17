@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Eye, EyeOff } from 'lucide-react'
 import { ClipLoader } from 'react-spinners'
+import { supabase } from '../supabase'
+import { useNavigate } from 'react-router-dom'
 
 const stagger = (i) => ({
   hidden: { opacity: 0, y: 24 },
@@ -15,8 +17,8 @@ const stagger = (i) => ({
 
 const SignUpPage = () => {
   const [errors, setErrors] = useState({})
+  const [apiError, setApiError] = useState('')
   const [loading, setLoading] = useState(false) 
-
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -24,12 +26,13 @@ const SignUpPage = () => {
   })
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const navigate = useNavigate()
 
   const handleChange = (e) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }))
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
 
     const newErrors = {}
@@ -56,8 +59,25 @@ const SignUpPage = () => {
     }
 
     setErrors({})
+    setApiError('')
     setLoading(true)
-    console.log('Sign Up submitted:', formData)
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email: formData.email,
+        password: formData.password,
+      })
+
+      if (error) {
+        setApiError(error.message)
+        return
+      }
+
+      navigate('/verify-email', { state: { email: formData.email } })
+    } catch (err) {
+      setApiError('Something went wrong. Please try again.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -214,6 +234,13 @@ const SignUpPage = () => {
                 <p className="mt-1 text-sm text-light-error dark:text-dark-error">{errors.confirmPassword}</p>
               )}
             </div>
+
+            {/* API error */}
+            {apiError && (
+              <div className="rounded-lg border border-light-error/20 bg-light-error/5 px-4 py-3 text-sm text-light-error dark:border-dark-error/20 dark:bg-dark-error/5 dark:text-dark-error">
+                {apiError}
+              </div>
+            )}
 
             {/* Submit */}
             <motion.button

@@ -7,6 +7,8 @@ import SearchBar from "./SearchBar";
 import AddButton from "./AddButton";
 import NavLinks from "./NavLinks";
 import HamburgerButton from "./HamburgerButton";
+import NavSignOut from './NavSignOut';
+import { useAuth } from '../context/AuthContext';
 
 const NavBar = ({ searchQuery, setSearchQuery }) => {
   const location = useLocation();
@@ -14,6 +16,7 @@ const NavBar = ({ searchQuery, setSearchQuery }) => {
   const isAuth = location.pathname === "/signup" || location.pathname === "/signin";
   const [isOpen, setIsOpen] = useState(false);
   const navRef = useRef(null);
+  const { user, loading, signOut } = useAuth();
 
   // Lock body scroll when mobile menu is open
   useEffect(() => {
@@ -81,7 +84,8 @@ const NavBar = ({ searchQuery, setSearchQuery }) => {
                     <SearchBar searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
                   </div>
                   <AddButton />
-                  <NavSignUp />
+                  {!loading && (user ? <NavSignOut onClick={signOut} /> : <NavSignUp />)}
+                  {/* {loading ? <NavSignUp /> : user && <NavSignOut  /> } */}
                 </>
               )}
             </div>
@@ -110,7 +114,7 @@ const NavBar = ({ searchQuery, setSearchQuery }) => {
         ) : (
           <div className="flex flex-col gap-5 px-6 py-4">
             <div className="flex justify-end">
-              <NavSignUp onClick={closeMenu} />
+              {loading ? <NavSignUp onClick={signOut} /> : user && <NavSignOut  onClick={closeMenu} /> }
             </div>
             <div className="flex items-center gap-3">
               <div className="flex-1">

@@ -1,6 +1,7 @@
 import React from 'react'
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import { useAuth } from '../context/AuthContext';
 
 const stagger = (i) => ({
   hidden: { opacity: 0, y: 32 },
@@ -12,6 +13,8 @@ const stagger = (i) => ({
 });
 
 const Hero = () => {
+  const { user, loading } = useAuth();
+
   return (
     <section className="relative isolate overflow-hidden bg-light-bg-primary px-6 pt-24 pb-20 md:pt-36 md:pb-32 dark:bg-dark-bg-primary">
       {/* Paper grain texture overlay */}
@@ -79,7 +82,7 @@ const Hero = () => {
               Get Started Free
             </Link>
             <Link
-              to="/guest"
+              to={!loading && user ? '/dashboard' : '/guest'}
               className="inline-flex items-center justify-center rounded-lg border-2 border-light-text-primary px-8 py-4 font-sans text-base font-medium text-light-text-primary transition-all duration-200 hover:bg-light-text-primary hover:text-white active:scale-[0.98] dark:border-dark-text-primary dark:text-dark-text-primary dark:hover:bg-dark-text-primary dark:hover:text-dark-bg-primary"
             >
               Try as Guest
