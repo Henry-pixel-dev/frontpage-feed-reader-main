@@ -27,12 +27,12 @@ const App = () => {
         <Route path="/" element={<MainLayout />}>
           <Route index element={<LandingPage />} />
           <Route path="/verify-email" element={<VerifyEmailPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
           
           <Route element={<PublicOnlyRoute />}>
             <Route path="/signup" element={<SignUpPage />} />
             <Route path="/signin" element={<SignIn />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
-            <Route path="/reset-password" element={<ResetPasswordPage />} />
           </Route>
 
           <Route element={<ProtectedRoute />}>

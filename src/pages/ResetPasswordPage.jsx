@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Eye, EyeOff, CheckCircle } from 'lucide-react'
 import { ClipLoader } from 'react-spinners'
+import { toast } from 'react-toastify';
 
 const stagger = (i) => ({
   hidden: { opacity: 0, y: 24 },
@@ -24,14 +25,57 @@ const ResetPasswordPage = () => {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
 
-  const handleChange = (e) => {
+
+  const handleChange =  (e) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }))
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    console.log(formData)
+
+    const newError  = {};
+
+    if(!formData.password) {
+      newError.password = 'Password is required'
+    } else if(formData.password.length < 6) {
+      newError.password = 'Password must be at least 6 characters'
+    }
+    
+    if(!formData.confirmPassword) {
+      newError.confirmPassword = 'Please confirm your password'
+    } else if(formData.confirmPassword !== formData.password) {
+      newError.confirmPassword = 'Passwords do not match'
+    }
+
+    if (Object.keys(newError).length > 0) {
+      setError(newError)
+      return
+    }
+
+    setError({})
+    setLoading(true)
+
+    try{
+      const { data, error } = await supabase.auth.updateUser({
+        password: formData.password
+      })
+
+      if(error) {
+        setError(error.message)
+        return
+      }
+
+      setSuccess(true)
+
+      toast.success('Password updated successfully! Please sign in with your new password.')
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setLoading(false)
+    }
   }
+
+
 
   return (
     <section className="relative isolate flex min-h-[calc(100vh-57px)] items-center justify-center overflow-hidden bg-light-bg-primary px-6 py-16 dark:bg-dark-bg-primary">

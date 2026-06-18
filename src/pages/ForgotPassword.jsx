@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Mail } from 'lucide-react'
 import { ClipLoader } from 'react-spinners'
+import { supabase } from '../supabase'
 
 const stagger = (i) => ({
   hidden: { opacity: 0, y: 24 },
@@ -19,10 +20,44 @@ const ForgotPasswordPage = () => {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async(e) => {
     e.preventDefault()
-    console.log(email)
+    
+    const newErrors = [];
+
+    if (!email) {
+      newErrors.email = 'Email is required'
+    } else if (!/\S+@\S+\.\S+/.test(email)) {
+      newErrors.email = 'Email is invalid'
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setError(newErrors)
+      return
+    }
+
+    setError([])
+    setLoading(true)
+
+    try {
+      console.log(window.location.origin)
+      const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`
+      })
+
+      if (error) {
+        setError(error.message)
+        return
+      }
+
+      setSuccess(true)
+    } catch (error) {
+      setError(error.message)
+    } finally {
+      setLoading(false)
+    }
   }
+
 
   return (
     <section className="relative isolate flex min-h-[calc(100vh-57px)] items-center justify-center overflow-hidden bg-light-bg-primary px-6 py-16 dark:bg-dark-bg-primary">
