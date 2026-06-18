@@ -8,7 +8,7 @@ import {
 import MainLayout from './layouts/MainLayout';
 import FeedLayout from './layouts/FeedLayout';
 import LandingPage from './pages/LandingPage';
-import HomePage from './pages/HomePage';
+// import HomePage from './pages/HomePage';
 import SignUpPage from './pages/SignUpPage';
 import SignIn from './pages/SignIn';
 import GuestMode from './pages/GuestMode';
@@ -40,14 +40,13 @@ const App = () => {
           </Route>
         </Route>
 
-        <Route element={<FeedLayout />}>
-          <Route element={<PublicOnlyRoute />}>
+        <Route element={<PublicOnlyRoute />}>
+          <Route element={<FeedLayout />}>
             <Route path="/guest" element={<GuestMode />} />
             <Route path="/feed" element={<GuestMode />} />
             <Route path="/digest" element={<GuestMode />} />
             <Route path="/discover" element={<GuestMode />} />
           </Route>
-          <Route path="/home" element={<HomePage />} />
         </Route>
       </>
     )
