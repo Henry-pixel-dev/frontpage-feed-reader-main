@@ -5,6 +5,8 @@ import { Eye, EyeOff } from 'lucide-react'
 import { ClipLoader } from 'react-spinners'
 import { supabase } from '../supabase'
 import { useNavigate } from 'react-router-dom'
+import sampleFeeds from "../../data/sample-feeds.json";
+
 
 const stagger = (i) => ({
   hidden: { opacity: 0, y: 24 },
@@ -27,6 +29,59 @@ const SignUpPage = () => {
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const navigate = useNavigate()
+
+
+  const seedUserFeeds = async (userId) => {
+    // all the logic goes here
+    const { data, error } = await supabase
+      .from('categories')
+      .insert(
+        // name: 'Frontend', 
+        // user_id: userId 
+        sampleFeeds.categories.map(category => ({
+          name: category.name,
+          user_id: userId
+        }))
+      )
+      .select()
+
+      console.log('categories data:', data)
+      console.log('categories error:', error)
+
+
+      if (error) {
+        console.error('Failed to create categories:', error)
+        return
+      }
+
+    for (const category of sampleFeeds.categories) {
+      // find   →  get the matching Supabase category
+      const savedCategory = data.find(c => c.name === category.name)
+
+      // map    →  build feeds array for this category
+      const feedsToInsert = category.feeds.map(feed => ({
+        title: feed.title,
+        feed_url: feed.feedUrl,
+        site_url: feed.siteUrl,
+        description: feed.description,
+        status:  'active',
+        user_id: userId,
+        category_id: savedCategory.id
+      }))
+
+      // insert →  save to Supabase
+      const {data: feedsData, error: feedsError} = await supabase
+        .from('feeds')
+        .insert(feedsToInsert)
+        .select()
+
+        if (feedsError) {
+          console.error('Failed to insert feeds:', feedsError)
+        }
+    }
+
+    
+  }
 
   const handleChange = (e) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }))
@@ -67,10 +122,16 @@ const SignUpPage = () => {
         password: formData.password,
       })
 
+      console.log('signup data:', data)
+      console.log('signup error:', error)
+      console.log('user id:', data?.user?.id)
+
       if (error) {
         setApiError(error.message)
         return
       }
+
+      await seedUserFeeds(data.user.id)  
 
       navigate('/verify-email', { state: { email: formData.email } })
     } catch (err) {

@@ -1,10 +1,13 @@
 import React, { useState, useCallback, useEffect } from 'react'
-import { Outlet } from "react-router-dom"
+import { Outlet, useOutletContext } from "react-router-dom"
 import { motion, AnimatePresence } from "framer-motion"
 import NavBar from "../components/NavBar"
 import Sidebar from "../components/Sidebar"
 import FeedToolbar from "../components/FeedToolbar"
 import ArticleModal from "../components/ArticleModal"
+import { supabase } from '../supabase'
+import { useAuth } from '../context/AuthContext';
+
 
 const FeedLayout = () => {
   const [filter, setFilter] = useState({ type: null, value: null })
@@ -13,12 +16,55 @@ const FeedLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [selectedArticle, setSelectedArticle] = useState(null)
   const [viewMode, setViewMode] = useState('list')
-  const [searchQuery, setSearchQuery] = useState('')
+  const { searchQuery, setSearchQuery } = useOutletContext() || {}
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('')
   const [savedArticles, setSavedArticles] = useState(() => {
     const stored = sessionStorage.getItem('savedArticles')
     return stored ? JSON.parse(stored) : []
   })
+  const [categories, setCategories] = useState([])
+  const { user } = useAuth();
+
+
+  useEffect(() => {
+
+
+    const fetchData = async () => {
+      try {
+        
+        if (!user) return
+
+        const { data, error } = await supabase
+          .from('categories')
+          .select(`
+            id,
+            name,
+            feeds (
+              id,
+              title,
+              feed_url,
+              site_url,
+              description
+            )
+          `)
+          .eq('user_id', user.id)
+
+          if (error) {
+            console.error("Error fetching categories:", error.message)
+            return
+          }
+        console.log("Fetched categories:", data)
+        setCategories(data || [])
+      } catch (error) {
+        console.error("Error fetching categories:", error)
+      }
+    }
+
+    fetchData()
+  }, [user])
+
+
+
 
   useEffect(() => {
     sessionStorage.setItem('savedArticles', JSON.stringify(savedArticles))
@@ -70,12 +116,12 @@ const FeedLayout = () => {
 
   return (
     <div className="flex h-screen flex-col font-sans">
-      <NavBar  searchQuery={searchQuery} setSearchQuery={setSearchQuery}/>
+      {/* <NavBar  searchQuery={searchQuery} setSearchQuery={setSearchQuery}/> */}
 
       <div className="flex flex-1 overflow-hidden">
         {/* Desktop sidebar — always visible at md+ */}
         <div className="hidden md:block w-sidebar shrink-0 overflow-y-auto border-r border-light-border-subtle bg-light-bg-primary dark:border-dark-border dark:bg-dark-bg-primary">
-          <Sidebar filter={filter} setFilter={setFilter} savedCount={savedArticles.length} />
+          <Sidebar filter={filter} setFilter={setFilter} savedCount={savedArticles.length} categories={categories} />
         </div>
 
         {/* Mobile sidebar — slide-over overlay */}
@@ -111,7 +157,7 @@ const FeedLayout = () => {
                     </svg>
                   </button>
                 </div>
-                <Sidebar filter={filter} setFilter={handleFilterChange} />
+                <Sidebar filter={filter} setFilter={handleFilterChange} categories={categories} />
               </motion.div>
             </>
           )}
@@ -124,7 +170,7 @@ const FeedLayout = () => {
 
           <main className="flex-1 overflow-y-auto bg-light-bg-secondary dark:bg-dark-bg-primary">
             <div className="mx-auto max-w-container-feed px-4 py-4 sm:px-6 sm:py-6">
-              <Outlet context={{ filter, fetchFeed, feedContent, clearFeedContent, loading, selectArticle: setSelectedArticle, viewMode, debouncedSearchQuery, savedArticles, toggleSaveArticle }} />
+              <Outlet context={{ filter, fetchFeed, feedContent, clearFeedContent, loading, selectArticle: setSelectedArticle, viewMode, debouncedSearchQuery, savedArticles, toggleSaveArticle, categories }} />
             </div>
           </main>
         </div>

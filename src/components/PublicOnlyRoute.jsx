@@ -1,14 +1,15 @@
 import React from 'react'
 import { useAuth } from '../context/AuthContext'
-import { Outlet, Navigate } from 'react-router-dom';
+import { Outlet, Navigate, useOutletContext } from 'react-router-dom';
 
 
 const PublicOnlyRoute = () => {
   const { user, loading } = useAuth();
+  const context = useOutletContext()
 
 
   return (
-    loading ? null : user ? <Navigate to="/dashboard" /> : <Outlet />
+    loading ? null : user ? <Navigate to="/dashboard" /> : <Outlet context={context}/>
   )
 }
 

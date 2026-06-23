@@ -18,6 +18,8 @@ import VerifyEmailPage from './pages/VerifyEmailPage';
 import PublicOnlyRoute from './components/PublicOnlyRoute';
 import ForgotPassword from './pages/ForgotPassword'
 import ResetPasswordPage from './pages/ResetPasswordPage'
+import DigestPage from './pages/DigestPage'
+import DiscoverPage from './pages/DiscoverPage'
 
 
 const App = () => {
@@ -36,18 +38,22 @@ const App = () => {
           </Route>
 
           <Route element={<ProtectedRoute />}>
-            <Route path="/dashboard" element={<DashBoard />} />
+            <Route element={<FeedLayout />}>
+              <Route path="/dashboard" element={<DashBoard />} />
+              <Route path="/digest" element={<DigestPage />} />
+              <Route path="/discover" element={<DiscoverPage />} />
+            </Route>
           </Route>
+
+
+          <Route element={<PublicOnlyRoute />}>
+              <Route element={<FeedLayout />}>
+                <Route path="/guest" element={<GuestMode />} />
+              </Route>
+            </Route>
         </Route>
 
-        <Route element={<PublicOnlyRoute />}>
-          <Route element={<FeedLayout />}>
-            <Route path="/guest" element={<GuestMode />} />
-            <Route path="/feed" element={<GuestMode />} />
-            <Route path="/digest" element={<GuestMode />} />
-            <Route path="/discover" element={<GuestMode />} />
-          </Route>
-        </Route>
+        
       </>
     )
   );

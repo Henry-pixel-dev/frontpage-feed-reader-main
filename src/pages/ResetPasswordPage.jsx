@@ -4,6 +4,7 @@ import { motion } from 'framer-motion'
 import { Eye, EyeOff, CheckCircle } from 'lucide-react'
 import { ClipLoader } from 'react-spinners'
 import { toast } from 'react-toastify';
+import { supabase } from '../supabase'
 
 const stagger = (i) => ({
   hidden: { opacity: 0, y: 24 },
@@ -23,6 +24,7 @@ const ResetPasswordPage = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [formErrors, setFormErrors] = useState({})
   const [success, setSuccess] = useState(false)
 
 
@@ -48,11 +50,11 @@ const ResetPasswordPage = () => {
     }
 
     if (Object.keys(newError).length > 0) {
-      setError(newError)
+      setFormErrors(newError)
       return
     }
 
-    setError({})
+    setFormErrors('')
     setLoading(true)
 
     try{
@@ -202,6 +204,11 @@ const ResetPasswordPage = () => {
                     </button>
                   </div>
                 </div>
+                {formErrors.password && (
+                  <p className="mt-1 text-sm text-light-error dark:text-dark-error">
+                    {formErrors.password}
+                  </p>
+                )}
 
                 {/* Confirm Password */}
                 <div className="flex flex-col gap-1.5">
@@ -232,6 +239,11 @@ const ResetPasswordPage = () => {
                       {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                     </button>
                   </div>
+                  {formErrors.confirmPassword && (
+                    <p className="mt-1 text-sm text-light-error dark:text-dark-error">
+                      {formErrors.confirmPassword}
+                    </p>
+                  )}
                   {error && (
                     <p className="mt-1 text-sm text-light-error dark:text-dark-error">{error}</p>
                   )}

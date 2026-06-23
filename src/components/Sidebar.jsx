@@ -4,8 +4,11 @@ import sampleFeeds from "../../data/sample-feeds.json"
 import SidebarItem from "./SidebarItem"
 import CategoryGroup from "./CategoryGroup"
 import SidebarFooter from "./SidebarFooter"
+import { useAuth } from '../context/AuthContext';
 
-const Sidebar = ({ filter, setFilter, savedCount }) => {
+const Sidebar = ({ filter, setFilter, savedCount, categories }) => {
+  const { user } = useAuth();
+
   const handleAllItems = () => {
     setFilter({ type: null, value: null })
   }
@@ -13,6 +16,8 @@ const Sidebar = ({ filter, setFilter, savedCount }) => {
   const handleSaved = () => {
     setFilter({ type: "saved", value: "Saved" })
   }
+
+    const currentCategories = user ? categories : sampleFeeds.categories
 
   return (
     <aside className="flex h-full flex-col">
@@ -38,7 +43,7 @@ const Sidebar = ({ filter, setFilter, savedCount }) => {
           Categories
         </span>
 
-        {sampleFeeds.categories.map((category) => (
+        {currentCategories.map((category) => (
           <CategoryGroup
             key={category.name}
             name={category.name}
