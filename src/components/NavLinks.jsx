@@ -2,7 +2,7 @@ import React from 'react'
 import { Link, useLocation } from "react-router-dom"
 
 const linkDefs = [
-  { to: "/feed", label: "Feed" },
+  { to: "/dashboard", label: "Feed" },
   { to: "/digest", label: "Digest" },
   { to: "/discover", label: "Discover" },
 ]

@@ -1,5 +1,6 @@
 import React from 'react'
 import { Rss, Globe } from "lucide-react"
+import FollowButton from './FollowButton'
 
 const categoryColors = {
   "Frontend": "bg-light-accent dark:bg-dark-accent",
@@ -9,7 +10,7 @@ const categoryColors = {
   "AI & ML": "bg-rose-500 dark:bg-rose-400",
 }
 
-const ArticleCard = ({ title, feedUrl, siteUrl, description, format, notes, category, onCardClick }) => {
+const ArticleCard = ({ title, feedUrl, siteUrl, description, format, notes, category, onCardClick, showFollow = false }) => {
   const dotColor = categoryColors[category] || "bg-light-text-tertiary dark:bg-dark-text-tertiary"
 
   return (
@@ -21,9 +22,12 @@ const ArticleCard = ({ title, feedUrl, siteUrl, description, format, notes, cate
       </div>
 
       <div className="flex min-w-0 flex-1 flex-col gap-3">
-        <div className="flex flex-row items-center gap-2 text-light-text-tertiary dark:text-dark-text-tertiary">
-          <Rss className="size-3.5" />
-          <span className="text-xs font-medium uppercase tracking-wide">{format}</span>
+        <div className="flex flex-row items-center justify-between gap-2">
+          <div className="flex items-center gap-2 text-light-text-tertiary dark:text-dark-text-tertiary">
+            <Rss className="size-3.5" />
+            <span className="text-xs font-medium uppercase tracking-wide">{format}</span>
+          </div>
+          {showFollow && <FollowButton />}
         </div>
 
         <div className="flex flex-col gap-1.5">
@@ -41,7 +45,7 @@ const ArticleCard = ({ title, feedUrl, siteUrl, description, format, notes, cate
               className="flex items-center gap-1 transition-colors hover:text-light-accent dark:hover:text-dark-accent"
             >
               <Globe className="size-3" />
-              {siteUrl.replace(/^https?:\/\//, "").replace(/\/$/, "")}
+              {siteUrl && siteUrl.replace(/^https?:\/\//, "").replace(/\/$/, "")}
             </a>
             <span className="text-light-border dark:text-dark-border">|</span>
             <span className="truncate">{feedUrl}</span>
