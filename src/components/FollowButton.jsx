@@ -1,12 +1,13 @@
 import React, { useState } from 'react'
 import { Plus, Check } from 'lucide-react'
 
-const FollowButton = () => {
-  const [followed, setFollowed] = useState(false)
+const FollowButton = ({ insertFeed, setFollowed, followed}) => {
+  // const [followed, setFollowed] = useState(false)
 
   const handleClick = (e) => {
     e.stopPropagation()
     setFollowed((prev) => !prev)
+    insertFeed()
   }
 
   return (

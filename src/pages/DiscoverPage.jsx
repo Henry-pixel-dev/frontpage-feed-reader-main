@@ -5,6 +5,9 @@ import ArticleCard from '../components/ArticleCard'
 import ArticleItem from '../components/ArticleItem'
 import { ArrowLeft } from "lucide-react"
 import { useOutletContext } from "react-router-dom"
+import { supabase } from '../supabase'
+import { useAuth } from '../context/AuthContext'
+import { toast } from 'react-toastify';
 
 
 
@@ -17,15 +20,37 @@ const DiscoverPage = () => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [feedPreview, setFeedPreview] = useState(null)
+  const { user } = useAuth();
+  const [followed, setFollowed] = useState(false)
 
   const fetchFeed = async (feedUrl) => {
     setLoading(true)
     try {
       const response = await fetch(`http://localhost:3000/api/preview-feed?url=${encodeURIComponent(feedUrl)}`)
       const data = await response.json()
-      console.log("Fetched feed data:", data)
-      
+      // console.log("Fetched feed data:", data)
+
+      if (data.error) {
+        setError(data.error)  // show error message
+        return               // don't set feedPreview
+      }
+
+      if (!user) return
+      const { data: existingFeed } = await supabase
+        .from('feeds')
+        .select('id')
+        .eq('feed_url', data.feedUrl)
+        .eq('user_id', user.id)
+        .single()
+
+      if (existingFeed) {
+        setFollowed(true)
+      } else {
+        setFollowed(false)
+      }
+
       setFeedPreview(data)
+
     } catch (error) {
       console.error("Failed to fetch feed:", error)
     } finally {
@@ -37,10 +62,66 @@ const DiscoverPage = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault()
+    setFeedPreview(null) 
+    setError('')         
+    setShowArticles(false)
     fetchFeed(url)
-    console.log("Submitted URL:", url)
-    console.log("Feed preview data:", feedPreview)
+
+    // console.log("Submitted URL:", url)
+    // console.log("Feed preview data:", feedPreview)
   }
+
+  const insertFeed = async () => {
+
+    try {
+
+      if (followed) {
+        const { error: deleteError } = await supabase
+          .from('feeds')
+          .delete()
+          .eq('feed_url', feedPreview.feedUrl)
+          .eq('user_id', user.id)
+
+          if (deleteError) {
+            setError(deleteError.message)
+            return
+          }
+          
+          setFollowed(false) 
+          toast.success(`Unfollowed ${feedPreview.title}`)  
+
+        } else {
+        const {data, error} = await supabase
+        .from('feeds')
+        .insert({
+          title: feedPreview.title,
+          feed_url: feedPreview.feedUrl,
+          description: feedPreview.description,
+          favicon: feedPreview.favicon,
+          status: 'active',
+          user_id: user.id,
+          category_id: null
+        })
+
+        if (error) {
+          setError(error.message)
+          return;
+        }
+
+        setFollowed(true)
+        toast.success(`you followed ${feedPreview.title}`);
+      }
+    } catch (error) {
+      setError(error.message)
+      console.error("Error fetching categories:", error)
+      
+    }
+
+  }
+
+
+
+
 
   return (
     <div className="flex min-h-[60vh] flex-col items-start gap-6 font-sans ">
@@ -126,6 +207,9 @@ const DiscoverPage = () => {
               category={feedPreview.category}
               onCardClick={() => setShowArticles(true)}
               showFollow={true}
+              insertFeed={insertFeed}
+              followed={followed}
+              setFollowed={setFollowed}
             />
         )}
       </div>

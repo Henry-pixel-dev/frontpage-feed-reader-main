@@ -10,7 +10,7 @@ const categoryColors = {
   "AI & ML": "bg-rose-500 dark:bg-rose-400",
 }
 
-const ArticleCard = ({ title, feedUrl, siteUrl, description, format, notes, category, onCardClick, showFollow = false }) => {
+const ArticleCard = ({ title, feedUrl, siteUrl, description, format, notes, category, onCardClick, showFollow = false, insertFeed, followed, setFollowed }) => {
   const dotColor = categoryColors[category] || "bg-light-text-tertiary dark:bg-dark-text-tertiary"
 
   return (
@@ -27,7 +27,7 @@ const ArticleCard = ({ title, feedUrl, siteUrl, description, format, notes, cate
             <Rss className="size-3.5" />
             <span className="text-xs font-medium uppercase tracking-wide">{format}</span>
           </div>
-          {showFollow && <FollowButton />}
+          {showFollow && <FollowButton  insertFeed={insertFeed} setFollowed={setFollowed} followed={followed} />}
         </div>
 
         <div className="flex flex-col gap-1.5">
