@@ -1,38 +1,73 @@
 import React from 'react'
 import { ExternalLink, Bookmark } from "lucide-react"
 
-const ArticleItem = ({ title, summary, author, publishedAt, url, onTitleClick, isSaved, onToggleSave }) => {
+const ArticleItem = ({ title, summary, author, publishedAt, url, onTitleClick, isSaved, onToggleSave, isRead }) => {
   return (
-    <div className="flex flex-row items-start gap-3 rounded-lg border border-light-border-subtle bg-light-surface p-4 sm:p-6 transition-colors duration-150 hover:border-light-border dark:border-dark-border-subtle dark:bg-dark-surface dark:hover:border-dark-border">
+    <div
+      className={`group relative flex flex-row items-start gap-3 rounded-lg border p-4 sm:p-6 transition-all duration-200 ${
+        isRead
+          ? "border-light-border-subtle bg-light-surface hover:border-light-border dark:border-dark-border-subtle dark:bg-dark-surface dark:hover:border-dark-border"
+          : "border-light-unread/20 bg-light-accent-subtle/40 shadow-sm hover:border-light-unread/40 hover:shadow-md dark:border-dark-unread/20 dark:bg-dark-accent-subtle/40 dark:hover:border-dark-unread/40"
+      }`}
+    >
+      {!isRead && (
+        <div className="absolute top-0 left-0 h-full w-0.75 rounded-l-lg bg-light-unread dark:bg-dark-unread" />
+      )}
+
       <div className="flex flex-1 flex-col gap-2.5 sm:gap-3">
-        <h3
-          onClick={onTitleClick}
-          className="cursor-pointer text-base sm:text-lg font-medium leading-snug text-light-text-primary transition-colors hover:text-light-accent dark:text-dark-text-primary dark:hover:text-dark-accent"
-        >
-          {title}
-        </h3>
-
-      {summary && (
-        <p className="text-sm leading-relaxed text-light-text-secondary dark:text-dark-text-secondary">
-          {summary}
-        </p>
-      )}
-
-      {(author || publishedAt) && (
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-light-text-tertiary dark:text-dark-text-tertiary">
-          {author && <span>{author}</span>}
-          {author && publishedAt && (
-            <span className="text-light-border dark:text-dark-border">|</span>
+        <div className="flex items-start gap-2">
+          {!isRead && (
+            <span className="mt-1.75 block size-1.75 shrink-0 rounded-full bg-light-unread dark:bg-dark-unread sm:mt-2.25" />
           )}
-          {publishedAt && <span>{publishedAt}</span>}
+          <h3
+            onClick={onTitleClick}
+            className={`cursor-pointer text-base sm:text-lg leading-snug transition-colors ${
+              isRead
+                ? "font-normal text-light-text-secondary hover:text-light-accent dark:text-dark-text-secondary dark:hover:text-dark-accent"
+                : "font-semibold text-light-text-primary hover:text-light-accent dark:text-dark-text-primary dark:hover:text-dark-accent"
+            }`}
+          >
+            {title}
+          </h3>
         </div>
-      )}
+
+        {summary && (
+          <p
+            className={`text-sm leading-relaxed ${
+              isRead
+                ? "text-light-text-tertiary dark:text-dark-text-tertiary"
+                : "text-light-text-secondary dark:text-dark-text-secondary"
+            }`}
+          >
+            {summary}
+          </p>
+        )}
+
+        {(author || publishedAt) && (
+          <div
+            className={`flex flex-wrap items-center gap-x-3 gap-y-1 text-xs ${
+              isRead
+                ? "text-light-text-tertiary/70 dark:text-dark-text-tertiary/70"
+                : "text-light-text-tertiary dark:text-dark-text-tertiary"
+            }`}
+          >
+            {author && <span>{author}</span>}
+            {author && publishedAt && (
+              <span className="text-light-border dark:text-dark-border">|</span>
+            )}
+            {publishedAt && <span>{publishedAt}</span>}
+          </div>
+        )}
 
         <a
           href={url}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex w-fit items-center gap-1.5 text-xs font-medium text-light-accent transition-colors hover:text-light-accent/80 dark:text-dark-accent dark:hover:text-dark-accent/80"
+          className={`flex w-fit items-center gap-1.5 text-xs font-medium transition-colors ${
+            isRead
+              ? "text-light-accent/60 hover:text-light-accent dark:text-dark-accent/60 dark:hover:text-dark-accent"
+              : "text-light-accent hover:text-light-accent/80 dark:text-dark-accent dark:hover:text-dark-accent/80"
+          }`}
         >
           Read original
           <ExternalLink className="size-3" />

@@ -16,7 +16,7 @@ const DiscoverPage = () => {
 
   const [url, setUrl] = useState('')
   const [showArticles, setShowArticles] = useState(false)
-  const { selectArticle } = useOutletContext()
+  const { selectArticle, feedsVersion, setFeedsVersion } = useOutletContext()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [feedPreview, setFeedPreview] = useState(null)
@@ -88,7 +88,8 @@ const DiscoverPage = () => {
           }
           
           setFollowed(false) 
-          toast.success(`Unfollowed ${feedPreview.title}`)  
+          toast.success(`Unfollowed ${feedPreview.title}`)
+          setFeedsVersion(prev => prev + 1)  
 
         } else {
         const {data, error} = await supabase
@@ -110,6 +111,8 @@ const DiscoverPage = () => {
 
         setFollowed(true)
         toast.success(`you followed ${feedPreview.title}`);
+        setFeedsVersion(prev => prev + 1)
+        console.log(feedsVersion)
       }
     } catch (error) {
       setError(error.message)

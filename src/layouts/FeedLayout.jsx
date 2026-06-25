@@ -7,6 +7,7 @@ import FeedToolbar from "../components/FeedToolbar"
 import ArticleModal from "../components/ArticleModal"
 import { supabase } from '../supabase'
 import { useAuth } from '../context/AuthContext';
+import { article, pre } from 'framer-motion/client'
 
 
 const FeedLayout = () => {
@@ -23,7 +24,10 @@ const FeedLayout = () => {
     return stored ? JSON.parse(stored) : []
   })
   const [categories, setCategories] = useState([])
+  const [uncategorizedFeeds, setUncategorizedFeeds] = useState([])
   const { user } = useAuth();
+  const [feedsVersion, setFeedsVersion] = useState(0)
+  const [readArticleUrls, setReadArticleUrls] = useState(new Set())
 
 
   useEffect(() => {
@@ -55,13 +59,38 @@ const FeedLayout = () => {
           }
         console.log("Fetched categories:", data)
         setCategories(data || [])
+
+        const { data: uncategorizedData, error: uncategorizedError } = await supabase
+        .from('feeds')
+        .select('*')
+        .eq('user_id', user.id)
+        .is('category_id', null)
+
+        if (uncategorizedError) {
+          console.error("Error fetching uncategorized feeds:", uncategorizedError.message)
+          return
+        }
+        setUncategorizedFeeds(uncategorizedData || [])
+
+
+        const {data: readstateData, error: readstateError} = await supabase
+          .from('read_state')
+          .select(`article_url`)
+          .eq('user_id', user.id)
+
+        if (readstateError) {
+          console.error("Error fetching uncategorized feeds:", readstateError.message)
+          return
+        }
+
+        setReadArticleUrls(new Set(readstateData.map(item => item.article_url)))        
       } catch (error) {
         console.error("Error fetching categories:", error)
       }
     }
 
     fetchData()
-  }, [user])
+  }, [user, feedsVersion])
 
 
 
@@ -114,6 +143,35 @@ const FeedLayout = () => {
     }
   }
 
+      
+        
+
+
+
+  const UpdateReadStatus = async (articleUrl) => {
+    console.log('UpdateReadStatus called with:', articleUrl)
+    if (!user) return
+
+    try {
+      const { data, error } = await supabase
+        .from('read_state')
+        .insert({
+          user_id: user.id,
+          article_url: articleUrl  // ← use parameter directly
+        })
+
+      if (error) {
+        console.log('Failed to mark as read:', error.message)
+        return
+      }
+
+      setReadArticleUrls(prev => new Set([...prev, articleUrl]))
+    } catch (error) {
+      console.log(error.message)
+    }
+  }
+
+
   return (
     <div className="flex h-screen flex-col font-sans">
       {/* <NavBar  searchQuery={searchQuery} setSearchQuery={setSearchQuery}/> */}
@@ -121,7 +179,7 @@ const FeedLayout = () => {
       <div className="flex flex-1 overflow-hidden">
         {/* Desktop sidebar — always visible at md+ */}
         <div className="hidden md:block w-sidebar shrink-0 overflow-y-auto border-r border-light-border-subtle bg-light-bg-primary dark:border-dark-border dark:bg-dark-bg-primary">
-          <Sidebar filter={filter} setFilter={setFilter} savedCount={savedArticles.length} categories={categories} />
+          <Sidebar filter={filter} setFilter={setFilter} savedCount={savedArticles.length} categories={categories} uncategorizedData={uncategorizedFeeds}/>
         </div>
 
         {/* Mobile sidebar — slide-over overlay */}
@@ -141,7 +199,7 @@ const FeedLayout = () => {
                 animate={{ x: 0 }}
                 exit={{ x: "-100%" }}
                 transition={{ type: "spring", damping: 28, stiffness: 300 }}
-                className="fixed left-0 top-0 bottom-0 z-50 w-[280px] overflow-y-auto border-r border-light-border-subtle bg-light-bg-primary shadow-xl dark:border-dark-border dark:bg-dark-bg-primary md:hidden"
+                className="fixed left-0 top-0 bottom-0 z-50 w-70 overflow-y-auto border-r border-light-border-subtle bg-light-bg-primary shadow-xl dark:border-dark-border dark:bg-dark-bg-primary md:hidden"
               >
                 <div className="flex items-center justify-between border-b border-light-border-subtle px-4 py-3 dark:border-dark-border">
                   <span className="text-sm font-semibold text-light-text-primary dark:text-dark-text-primary">
@@ -157,7 +215,7 @@ const FeedLayout = () => {
                     </svg>
                   </button>
                 </div>
-                <Sidebar filter={filter} setFilter={handleFilterChange} categories={categories} />
+                <Sidebar filter={filter} setFilter={handleFilterChange} categories={categories} uncategorizedData={uncategorizedFeeds}/>
               </motion.div>
             </>
           )}
@@ -170,7 +228,7 @@ const FeedLayout = () => {
 
           <main className="flex-1 overflow-y-auto bg-light-bg-secondary dark:bg-dark-bg-primary">
             <div className="mx-auto max-w-container-feed px-4 py-4 sm:px-6 sm:py-6">
-              <Outlet context={{ filter, fetchFeed, feedContent, clearFeedContent, loading, selectArticle: setSelectedArticle, viewMode, debouncedSearchQuery, savedArticles, toggleSaveArticle, categories }} />
+              <Outlet context={{ filter, fetchFeed, feedContent, clearFeedContent, loading, selectArticle: setSelectedArticle, viewMode, debouncedSearchQuery, savedArticles, toggleSaveArticle, categories, setFeedsVersion, feedsVersion, uncategorizedFeeds, markAsRead: UpdateReadStatus, readArticleUrls }} />
             </div>
           </main>
         </div>

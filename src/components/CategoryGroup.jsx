@@ -58,7 +58,7 @@ const CategoryGroup = ({ name, feeds, filter, setFilter }) => {
         <div className="ml-5 flex flex-col gap-0.5 border-l border-light-border-subtle py-1 pl-3 dark:border-dark-border-subtle">
           {feeds.map((feed) => (
             <button
-              key={feed.feedUrl}
+              key={feed.feedUrl || feed.feed_url}
               onClick={() => handleFeedClick(feed.title)}
               className={`w-full rounded-md px-2 py-1.5 text-left text-xs transition-colors duration-150 ${
                 isFeedActive(feed.title)

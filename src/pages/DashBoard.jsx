@@ -17,7 +17,7 @@ function shuffle(array) {
 }
 
 const DashBoard = () => {
-  const { filter, fetchFeed, feedContent, clearFeedContent,  selectArticle, viewMode, debouncedSearchQuery, savedArticles, toggleSaveArticle, categories } = useOutletContext()
+  const { filter, fetchFeed, feedContent, clearFeedContent,  selectArticle, viewMode, debouncedSearchQuery, savedArticles, toggleSaveArticle, categories, uncategorizedFeeds, markAsRead, readArticleUrls } = useOutletContext()
   const { user, loading } = useAuth();
   
 
@@ -30,7 +30,15 @@ const DashBoard = () => {
           category: category.name,
         }))
       )
-      return shuffle(allFeeds)
+
+      const uncategorized = uncategorizedFeeds.map((feed) => ({
+        ...feed,
+        category: 'Uncategorized'
+      }))
+
+
+      return shuffle([...allFeeds, ...uncategorized])
+
     }, [categories])
 
   const filteredArticles = useMemo(() => {
@@ -106,7 +114,10 @@ const DashBoard = () => {
                 author={article.author}
                 publishedAt={article.publishedAt}
                 url={article.url}
-                onTitleClick={() => selectArticle(article)}
+                onTitleClick={() => {
+                  selectArticle(article)
+                  markAsRead(article.url)  
+                }}
                 isSaved={true}
                 onToggleSave={() => toggleSaveArticle(article)}
               />
@@ -126,9 +137,13 @@ const DashBoard = () => {
                 author={article.author}
                 publishedAt={article.publishedAt}
                 url={article.url}
-                onTitleClick={() => selectArticle(article)}
+                onTitleClick={() => {
+                  selectArticle(article)
+                  markAsRead(article.url)  
+                }}
                 isSaved={savedArticles.some((a) => a.url === article.url)}
                 onToggleSave={() => toggleSaveArticle(article)}
+                isRead={readArticleUrls.has(article.url)}
               />
             ))
           )

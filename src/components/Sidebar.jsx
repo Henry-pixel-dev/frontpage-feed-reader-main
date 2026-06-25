@@ -6,7 +6,7 @@ import CategoryGroup from "./CategoryGroup"
 import SidebarFooter from "./SidebarFooter"
 import { useAuth } from '../context/AuthContext';
 
-const Sidebar = ({ filter, setFilter, savedCount, categories }) => {
+const Sidebar = ({ filter, setFilter, savedCount, categories, uncategorizedData }) => {
   const { user } = useAuth();
 
   const handleAllItems = () => {
@@ -52,6 +52,15 @@ const Sidebar = ({ filter, setFilter, savedCount, categories }) => {
             setFilter={setFilter}
           />
         ))}
+
+        {uncategorizedData?.length > 0 && (
+          <CategoryGroup
+            name="Uncategorized"
+            feeds={uncategorizedData}
+            filter={filter}
+            setFilter={setFilter}
+          />
+        )}
       </div>
 
       <SidebarFooter />
