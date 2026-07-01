@@ -1,6 +1,7 @@
 import React from 'react'
 
 const SidebarItem = ({ icon: Icon, label, count, active, onClick }) => {
+
   return (
     <button
       onClick={onClick}

@@ -7,7 +7,7 @@ import FeedToolbar from "../components/FeedToolbar"
 import ArticleModal from "../components/ArticleModal"
 import { supabase } from '../supabase'
 import { useAuth } from '../context/AuthContext';
-import { article, pre } from 'framer-motion/client'
+// import { a, article, pre } from 'framer-motion/client'
 
 
 const FeedLayout = () => {
@@ -83,7 +83,29 @@ const FeedLayout = () => {
           return
         }
 
-        setReadArticleUrls(new Set(readstateData.map(item => item.article_url)))        
+        setReadArticleUrls(new Set(readstateData.map(item => item.article_url)))   
+        
+        
+        const {data: bookMarkedData, error: bookMarkedError} = await supabase
+          .from('bookmarks')
+          .select(`
+            id,
+            article_url,
+            title,
+            summary,
+            author,
+            published_at,
+            feed_id
+            `)
+          .eq('user_id', user.id)
+
+
+          if(bookMarkedError) {
+            console.log("Error fetching Bookmarked values:", bookMarkedError.message)
+            return;
+          }
+
+          setSavedArticles(bookMarkedData)
       } catch (error) {
         console.error("Error fetching categories:", error)
       }
@@ -94,10 +116,54 @@ const FeedLayout = () => {
 
 
 
+  const insertBookmark = async (article) => {
+     try {
+      const { error } = await supabase
+          .from('bookmarks')
+          .insert({
+            user_id: user.id,
+            article_url: article.url,
+            title: article.title,
+            summary: article.summary,
+            author: article.author,
+            published_at: article.publishedAt
+          })
+
+      if (error) {
+        console.log(error.message)
+        return
+      }
+     } catch (error) {
+      console.log(error.message)
+     }
+  }
+
+  const deleteBookmark = async (articleUrl) => {
+    // Supabase delete
+    try {
+      const {error: deleteError} = await supabase
+        .from('bookmarks')
+        .delete()
+        .eq('article_url', articleUrl)
+        .eq('user_id', user.id)
+
+        if (deleteError) {
+          console.log(deleteError.message)
+          return
+        }
+    } catch (error) {
+      console.log(error.message)
+    }
+  }
+
 
   useEffect(() => {
-    sessionStorage.setItem('savedArticles', JSON.stringify(savedArticles))
-  }, [savedArticles])
+    if (!user) {
+      sessionStorage.setItem('savedArticles', JSON.stringify(savedArticles))
+    }
+  }, [savedArticles, user])
+
+
 
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -111,10 +177,12 @@ const FeedLayout = () => {
 
   const toggleSaveArticle = useCallback((article) => {
     setSavedArticles((prev) => {
-      const exists = prev.some((a) => a.url === article.url)
+      const exists = prev.some((a) => (a.article_url || a.url)  === article.url)
       if (exists) {
-        return prev.filter((a) => a.url !== article.url)
+        deleteBookmark(article.url)
+        return prev.filter((a) => (a.article_url || a.url)  !== article.url)
       }
+      insertBookmark(article)
       return [...prev, article]
     })
   }, [])
@@ -171,6 +239,50 @@ const FeedLayout = () => {
     }
   }
 
+  const addNewCategory = async (categoryName) => {
+    if (!user || !categoryName.trim()) return
+
+    try{
+      const { data, error } = await supabase
+        .from('categories')
+        .insert({
+          user_id: user.id,
+          name: categoryName.trim()
+        })
+        .select()
+
+        
+        if (error) {
+          console.log("Error adding new category:", error.message)
+          return
+        }
+        
+        setFeedsVersion((prev) => prev + 1)
+
+    } catch (error) {
+      console.log("Error adding new category:", error.message)
+    }
+  }
+
+  const deleteCategory = async (categoryName) => {
+    if (!user) return
+
+    try {
+      const { data, error } = await supabase
+        .from('categories')
+        .delete()
+        .eq('name', categoryName)
+
+      if (error) {
+        console.log("Error deleting category:", error.message)
+        return
+      }
+
+      setFeedsVersion((prev) => prev + 1)
+    } catch (error) {
+      console.log("Error deleting category:", error.message)
+    }
+  }
 
   return (
     <div className="flex h-screen flex-col font-sans">
@@ -179,7 +291,7 @@ const FeedLayout = () => {
       <div className="flex flex-1 overflow-hidden">
         {/* Desktop sidebar — always visible at md+ */}
         <div className="hidden md:block w-sidebar shrink-0 overflow-y-auto border-r border-light-border-subtle bg-light-bg-primary dark:border-dark-border dark:bg-dark-bg-primary">
-          <Sidebar filter={filter} setFilter={setFilter} savedCount={savedArticles.length} categories={categories} uncategorizedData={uncategorizedFeeds}/>
+          <Sidebar filter={filter} setFilter={setFilter} savedCount={savedArticles.length} categories={categories} uncategorizedData={uncategorizedFeeds} addNewCategory={addNewCategory} deleteCategory={deleteCategory} />
         </div>
 
         {/* Mobile sidebar — slide-over overlay */}
@@ -215,7 +327,7 @@ const FeedLayout = () => {
                     </svg>
                   </button>
                 </div>
-                <Sidebar filter={filter} setFilter={handleFilterChange} categories={categories} uncategorizedData={uncategorizedFeeds}/>
+                <Sidebar filter={filter} setFilter={handleFilterChange} categories={categories} uncategorizedData={uncategorizedFeeds} addNewCategory={addNewCategory} deleteCategory={deleteCategory} />
               </motion.div>
             </>
           )}
