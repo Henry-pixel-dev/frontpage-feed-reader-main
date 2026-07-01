@@ -8,7 +8,7 @@ import { useAuth } from '../context/AuthContext';
 import { useState } from 'react'
 import { pre } from 'framer-motion/client'
 
-const Sidebar = ({ filter, setFilter, savedCount, categories, uncategorizedData, addNewCategory, deleteCategory }) => {
+const Sidebar = ({ filter, setFilter, savedCount, categories, uncategorizedData, addNewCategory, deleteCategory, editCategory }) => {
   const [showInput, setShowInput] = useState(false)
   const [newCategory, setNewCategory] = useState("")
   const [inputError, setInputError] = useState("")
@@ -16,6 +16,7 @@ const Sidebar = ({ filter, setFilter, savedCount, categories, uncategorizedData,
 
   const handleAllItems = () => {
     setFilter({ type: null, value: null })
+    console.log(categories)
   }
 
   const handleSaved = () => {
@@ -82,6 +83,7 @@ const Sidebar = ({ filter, setFilter, savedCount, categories, uncategorizedData,
             filter={filter}
             setFilter={setFilter}
             deleteCategory={deleteCategory}
+            editCategory={editCategory}
           />
         ))}
 
@@ -92,6 +94,7 @@ const Sidebar = ({ filter, setFilter, savedCount, categories, uncategorizedData,
             filter={filter}
             setFilter={setFilter}
             deleteCategory={deleteCategory}
+            editCategory={editCategory}
           />
         )}
 

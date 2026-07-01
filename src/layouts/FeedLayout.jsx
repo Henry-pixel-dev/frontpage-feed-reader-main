@@ -284,6 +284,29 @@ const FeedLayout = () => {
     }
   }
 
+  const editCategory = async (oldName, newName) => {
+    if (!user || !newName.trim()) return
+
+    try{
+      const { data, error } = await supabase
+        .from('categories')
+        .update({ name: newName.trim() })
+        .eq('user_id', user.id)
+        .eq('name', oldName)
+        .select()
+
+      if (error) {
+        console.log("Error editing category:", error.message)
+        return
+      }
+
+      setFeedsVersion((prev) => prev + 1)
+
+    } catch (error) {
+      console.log("Error editing category:", error.message)
+    }
+  }
+
   return (
     <div className="flex h-screen flex-col font-sans">
       {/* <NavBar  searchQuery={searchQuery} setSearchQuery={setSearchQuery}/> */}
@@ -291,7 +314,7 @@ const FeedLayout = () => {
       <div className="flex flex-1 overflow-hidden">
         {/* Desktop sidebar — always visible at md+ */}
         <div className="hidden md:block w-sidebar shrink-0 overflow-y-auto border-r border-light-border-subtle bg-light-bg-primary dark:border-dark-border dark:bg-dark-bg-primary">
-          <Sidebar filter={filter} setFilter={setFilter} savedCount={savedArticles.length} categories={categories} uncategorizedData={uncategorizedFeeds} addNewCategory={addNewCategory} deleteCategory={deleteCategory} />
+          <Sidebar filter={filter} setFilter={setFilter} savedCount={savedArticles.length} categories={categories} uncategorizedData={uncategorizedFeeds} addNewCategory={addNewCategory} deleteCategory={deleteCategory} editCategory={editCategory} />
         </div>
 
         {/* Mobile sidebar — slide-over overlay */}
@@ -327,7 +350,7 @@ const FeedLayout = () => {
                     </svg>
                   </button>
                 </div>
-                <Sidebar filter={filter} setFilter={handleFilterChange} categories={categories} uncategorizedData={uncategorizedFeeds} addNewCategory={addNewCategory} deleteCategory={deleteCategory} />
+                <Sidebar filter={filter} setFilter={handleFilterChange} categories={categories} uncategorizedData={uncategorizedFeeds} addNewCategory={addNewCategory} deleteCategory={deleteCategory} editCategory={editCategory} />
               </motion.div>
             </>
           )}
