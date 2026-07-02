@@ -412,7 +412,21 @@ const FeedLayout = () => {
 
         <div className="flex flex-1 flex-col overflow-hidden bg-light-bg-secondary dark:bg-dark-bg-primary">
           <div className="shrink-0">
-            <FeedToolbar onToggleSidebar={() => setSidebarOpen(true)} viewMode={viewMode} setViewMode={setViewMode} />
+            <FeedToolbar
+              onToggleSidebar={() => setSidebarOpen(true)}
+              viewMode={viewMode}
+              setViewMode={setViewMode}
+              onResetFilter={() => setFilter({ type: null, value: null })}
+              isAllItemsActive={filter.type === null}
+              onRefresh={async () => {
+                setLoading(true)
+                try {
+                  setFeedsVersion((prev) => prev + 1)
+                } finally {
+                  setLoading(false)
+                }
+              }}
+            />
           </div>
 
           <main className="flex-1 overflow-y-auto bg-light-bg-secondary dark:bg-dark-bg-primary">

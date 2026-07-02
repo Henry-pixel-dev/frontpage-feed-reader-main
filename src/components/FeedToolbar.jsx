@@ -6,7 +6,7 @@ const ToolbarButton = ({ icon: Icon, label, onClick }) => {
     <button
       onClick={onClick}
       aria-label={label}
-      className="flex items-center gap-1.5 rounded-md px-2 py-1.5 text-sm text-light-text-secondary transition-colors duration-150 hover:bg-light-bg-secondary hover:text-light-text-primary dark:text-dark-text-secondary dark:hover:bg-dark-bg-secondary dark:hover:text-dark-text-primary"
+      className="flex items-center gap-1.5 rounded-md px-2 py-1.5 text-sm text-light-text-secondary transition-colors duration-150 hover:bg-light-bg-secondary hover:text-light-text-primary dark:text-dark-text-secondary dark:hover:bg-dark-bg-secondary dark:hover:text-dark-text-primary cursor-pointer"
     >
       <Icon className="size-4" />
       {label && <span className="hidden sm:inline">{label}</span>}
@@ -14,7 +14,7 @@ const ToolbarButton = ({ icon: Icon, label, onClick }) => {
   )
 }
 
-const FeedToolbar = ({ onToggleSidebar, viewMode, setViewMode }) => {
+const FeedToolbar = ({ onToggleSidebar, viewMode, setViewMode, onResetFilter, isAllItemsActive, onRefresh }) => {
   return (
     <div className="flex items-center justify-between border-b border-light-border-subtle bg-light-bg-primary px-4 py-2 sm:px-6 sm:py-2.5 dark:border-dark-border dark:bg-dark-bg-primary">
       <div className="flex items-center gap-2 sm:gap-4">
@@ -23,12 +23,22 @@ const FeedToolbar = ({ onToggleSidebar, viewMode, setViewMode }) => {
           aria-label="Open sidebar"
           className="flex items-center justify-center rounded-md p-1.5 text-light-text-secondary transition-colors hover:bg-light-bg-secondary hover:text-light-text-primary dark:text-dark-text-secondary dark:hover:bg-dark-bg-secondary dark:hover:text-dark-text-primary md:hidden"
         >
-          <PanelLeft className="size-[18px]" />
+          <PanelLeft className="size-4.5" />
         </button>
 
-        <h2 className="text-sm font-semibold text-light-text-primary dark:text-dark-text-primary">
+        <button
+          type="button"
+          onClick={onResetFilter}
+          aria-pressed={isAllItemsActive}
+          className={`rounded-md px-3 py-2 text-sm font-medium transition-colors duration-150 ${
+            isAllItemsActive
+              ? "bg-light-accent-subtle text-light-accent dark:bg-dark-accent-subtle dark:text-dark-accent"
+              : "text-light-text-secondary hover:bg-light-bg-secondary hover:text-light-text-primary dark:text-dark-text-secondary dark:hover:bg-dark-bg-secondary dark:hover:text-dark-text-primary"
+          }`}
+        >
           All Items
-        </h2>
+        </button>
+
         <div className="hidden sm:flex items-center rounded-md border border-light-border dark:border-dark-border">
           <button
             onClick={() => setViewMode('grid')}
@@ -59,7 +69,7 @@ const FeedToolbar = ({ onToggleSidebar, viewMode, setViewMode }) => {
           <span className="text-xs sm:text-sm">Newest</span>
           <ChevronDown className="size-3.5" />
         </button>
-        <ToolbarButton icon={RefreshCw} label="Refresh" />
+        <ToolbarButton icon={RefreshCw} label="Refresh" onClick={onRefresh} />
         <ToolbarButton icon={CheckCheck} label="Mark all as read" />
       </div>
     </div>
