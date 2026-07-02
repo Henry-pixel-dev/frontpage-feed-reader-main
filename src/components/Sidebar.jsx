@@ -8,7 +8,7 @@ import { useAuth } from '../context/AuthContext';
 import { useState } from 'react'
 import { pre } from 'framer-motion/client'
 
-const Sidebar = ({ filter, setFilter, savedCount, categories, uncategorizedData, addNewCategory, deleteCategory, editCategory }) => {
+const Sidebar = ({ filter, setFilter, savedCount, categories, uncategorizedData, addNewCategory, deleteCategory, editCategory, deleteFeed, handleFeedMove }) => {
   const [showInput, setShowInput] = useState(false)
   const [newCategory, setNewCategory] = useState("")
   const [inputError, setInputError] = useState("")
@@ -66,7 +66,7 @@ const Sidebar = ({ filter, setFilter, savedCount, categories, uncategorizedData,
           </span>
 
           <button onClick={() => setShowInput((prev) => !prev)} aria-label="Add new category"
-          className={`text-lg px-2 border border-light-border-subtle dark:border-dark-border-subtle rounded-md border border-light-border text-lg font-light text-light-text-secondary transition-all duration-150 hover:border-light-accent hover:bg-light-accent-subtle hover:text-light-accent active:scale-[0.97] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-light-accent dark:border-dark-border dark:text-dark-text-secondary dark:hover:border-dark-accent dark:hover:bg-dark-accent-subtle dark:hover:text-dark-accent dark:focus-visible:outline-dark-accent ${
+          className={`text-lg px-2 border border-light-border-subtle dark:border-dark-border-subtle rounded-md font-light text-light-text-secondary transition-all duration-150 hover:border-light-accent hover:bg-light-accent-subtle hover:text-light-accent active:scale-[0.97] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-light-accent dark:text-dark-text-secondary dark:hover:border-dark-accent dark:hover:bg-dark-accent-subtle dark:hover:text-dark-accent dark:focus-visible:outline-dark-accent ${
             showInput
               ? "rotate-45 text-light-accent dark:text-dark-accent"
               : "rotate-0 text-light-text-secondary dark:text-dark-text-secondary"
@@ -84,6 +84,8 @@ const Sidebar = ({ filter, setFilter, savedCount, categories, uncategorizedData,
             setFilter={setFilter}
             deleteCategory={deleteCategory}
             editCategory={editCategory}
+            deleteFeed={deleteFeed}
+            handleFeedMove={handleFeedMove}
           />
         ))}
 
@@ -95,6 +97,8 @@ const Sidebar = ({ filter, setFilter, savedCount, categories, uncategorizedData,
             setFilter={setFilter}
             deleteCategory={deleteCategory}
             editCategory={editCategory}
+            deleteFeed={deleteFeed}
+            handleFeedMove={handleFeedMove}
           />
         )}
 

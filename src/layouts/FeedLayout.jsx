@@ -7,6 +7,7 @@ import FeedToolbar from "../components/FeedToolbar"
 import ArticleModal from "../components/ArticleModal"
 import { supabase } from '../supabase'
 import { useAuth } from '../context/AuthContext';
+import CategoryOptions from '../components/CategoryOptions'
 // import { a, article, pre } from 'framer-motion/client'
 
 
@@ -28,6 +29,8 @@ const FeedLayout = () => {
   const { user } = useAuth();
   const [feedsVersion, setFeedsVersion] = useState(0)
   const [readArticleUrls, setReadArticleUrls] = useState(new Set())
+  const [showCategoryOptions, setShowCategoryOptions] = useState(false)
+  const [movingFeedUrl, setMovingFeedUrl] = useState(null)
 
 
   useEffect(() => {
@@ -307,6 +310,57 @@ const FeedLayout = () => {
     }
   }
 
+  const deleteFeed = async (feedUrl) => {
+    if (!user) return
+
+    try {
+      const { data, error } = await supabase
+        .from('feeds')
+        .delete()
+        .eq('feed_url', feedUrl)
+        .eq('user_id', user.id)
+
+      if (error) {
+        console.log("Error deleting feed:", error.message)
+        return
+      }
+
+      setFeedsVersion((prev) => prev + 1)
+    } catch (error) {
+      console.log("Error deleting feed:", error.message)
+    }
+  }
+
+  const handleFeedMove = (feedUrl, oldCategory) => {
+    setShowCategoryOptions((prev) => !prev)
+    console.log(`Moving feed ${feedUrl} from category ${oldCategory}`)
+    setMovingFeedUrl(feedUrl)  // Store the feed URL to be moved
+    // Implement the logic to move the feed to a new category
+    // This could involve calling a function passed down as a prop
+    // For example: moveFeed(feedUrl, newCategory);
+  }
+
+  const moveFeed = async (feedUrl, newCategoryid) => {
+    if (!user) return
+    try {
+      const { data, error } = await supabase
+        .from('feeds')
+        .update({ category_id: newCategoryid ? newCategoryid : null })
+        .eq('feed_url', feedUrl)
+        .eq('user_id', user.id)
+        
+
+      if (error) {
+        console.log("Error moving feed:", error.message)
+        return
+      }
+
+      setFeedsVersion((prev) => prev + 1)
+    } catch (error) {
+      console.log("Error moving feed:", error.message)
+    }
+  }
+
   return (
     <div className="flex h-screen flex-col font-sans">
       {/* <NavBar  searchQuery={searchQuery} setSearchQuery={setSearchQuery}/> */}
@@ -314,7 +368,7 @@ const FeedLayout = () => {
       <div className="flex flex-1 overflow-hidden">
         {/* Desktop sidebar — always visible at md+ */}
         <div className="hidden md:block w-sidebar shrink-0 overflow-y-auto border-r border-light-border-subtle bg-light-bg-primary dark:border-dark-border dark:bg-dark-bg-primary">
-          <Sidebar filter={filter} setFilter={setFilter} savedCount={savedArticles.length} categories={categories} uncategorizedData={uncategorizedFeeds} addNewCategory={addNewCategory} deleteCategory={deleteCategory} editCategory={editCategory} />
+          <Sidebar filter={filter} setFilter={setFilter} savedCount={savedArticles.length} categories={categories} uncategorizedData={uncategorizedFeeds} addNewCategory={addNewCategory} deleteCategory={deleteCategory} editCategory={editCategory} deleteFeed={deleteFeed} handleFeedMove={handleFeedMove} />
         </div>
 
         {/* Mobile sidebar — slide-over overlay */}
@@ -350,7 +404,7 @@ const FeedLayout = () => {
                     </svg>
                   </button>
                 </div>
-                <Sidebar filter={filter} setFilter={handleFilterChange} categories={categories} uncategorizedData={uncategorizedFeeds} addNewCategory={addNewCategory} deleteCategory={deleteCategory} editCategory={editCategory} />
+                <Sidebar filter={filter} setFilter={handleFilterChange} categories={categories} uncategorizedData={uncategorizedFeeds} addNewCategory={addNewCategory} deleteCategory={deleteCategory} editCategory={editCategory} deleteFeed={deleteFeed} handleFeedMove={handleFeedMove} />
               </motion.div>
             </>
           )}
@@ -373,6 +427,17 @@ const FeedLayout = () => {
           <ArticleModal
             article={selectedArticle}
             onClose={() => setSelectedArticle(null)}
+          />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showCategoryOptions && (
+          <CategoryOptions
+            category={categories}
+            onClose={() => setShowCategoryOptions(false)}
+            moveFeed={moveFeed}
+            movingFeedUrl={movingFeedUrl}  // Pass the feed URL to be moved
           />
         )}
       </AnimatePresence>

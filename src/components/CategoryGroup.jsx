@@ -10,12 +10,13 @@ const categoryDotColors = {
   "AI & ML": "bg-rose-500 dark:bg-rose-400",
 }
 
-const CategoryGroup = ({ name, feeds, filter, setFilter, deleteCategory, editCategory }) => {
+const CategoryGroup = ({ name, feeds, filter, setFilter, deleteCategory, editCategory, deleteFeed, handleFeedMove }) => {
   const [isOpen, setIsOpen] = useState(false)
   const [showMenu, setShowMenu] = useState(false)
   const [isEditing, setIsEditing] = useState(false);
   const [editName, setEditName] = useState(name)
   const [editError, setEdittError] = useState("")
+  const [feedMenuOpen, setFeedMenuOpen] = useState(null) 
   
 
 
@@ -27,6 +28,7 @@ const CategoryGroup = ({ name, feeds, filter, setFilter, deleteCategory, editCat
 
   const handleCategoryClick = () => {
     setIsOpen((prev) => !prev)
+    setShowMenu(false) // Close the menu when toggling the category
 
     if (isCategoryActive) {
       setFilter({ type: null, value: null })
@@ -61,6 +63,15 @@ const CategoryGroup = ({ name, feeds, filter, setFilter, deleteCategory, editCat
     }
   }
 
+  const handleDeleteFeed = (feedUrl) => {
+    if (window.confirm(`Are you sure you want to delete the feed "${feedUrl}"?`)) {
+      deleteFeed(feedUrl) // Call the deleteFeed function here
+      setFeedMenuOpen(null); // Close the feed menu after deletion
+    }
+  }
+
+
+
   
 
 
@@ -78,7 +89,7 @@ const CategoryGroup = ({ name, feeds, filter, setFilter, deleteCategory, editCat
                     value={editName}
                     onChange={(e) => setEditName(e.target.value)}
                 />
-                <button onClick={editCategoty} className="rounded-md bg-light-accent text-light-accent-subtle hover:bg-light-accent-subtle hover:text-light-accent active:scale-[0.97] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-light-accent dark:bg-dark-accent dark:text-dark-accent-subtle dark:hover:bg-dark-accent-subtle dark:hover:text-dark-accent dark:focus-visible:outline-dark-accent px-2 py-1.5 text-sm font-medium transition-all duration-150">
+                <button onClick={editCategoty} className="rounded-md bg-light-accent text-light-accent-subtle hover:bg-light-accent-subtle hover:text-light-accent active:scale-[0.97] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-light-accent dark:bg-dark-accent dark:text-dark-accent-subtle dark:hover:bg-dark-accent-subtle dark:hover:text-dark-accent dark:focus-visible:outline-dark-accent px-2 py-1.5 text-sm font-medium cursor-pointer transition-all duration-150">
                   Edit
                 </button>
               </div>
@@ -92,7 +103,7 @@ const CategoryGroup = ({ name, feeds, filter, setFilter, deleteCategory, editCat
         <div className="flex space-x-3 items-start">
           <button
             onClick={handleCategoryClick}
-            className={`flex w-full items-center justify-between rounded-md px-3 py-2 text-sm font-medium transition-colors duration-150 ${
+            className={`flex w-full items-center justify-between rounded-md px-3 py-2 text-sm font-medium cursor-pointer transition-colors duration-150 ${
               isCategoryActive
                 ? "bg-light-accent-subtle text-light-accent dark:bg-dark-accent-subtle dark:text-dark-accent"
                 : "text-light-text-secondary hover:bg-light-bg-secondary hover:text-light-text-primary dark:text-dark-text-secondary dark:hover:bg-dark-bg-secondary dark:hover:text-dark-text-primary"
@@ -109,7 +120,7 @@ const CategoryGroup = ({ name, feeds, filter, setFilter, deleteCategory, editCat
 
           <button
             onClick={() => setShowMenu((prev) => !prev)}
-            className={`opacity-40 transition-opacity duration-150 ${
+            className={`opacity-40 transition-opacity duration-150  cursor-pointer ${
               showMenu
                 ? "text-light-accent dark:text-dark-accent"
                 : "text-light-text-secondary dark:text-dark-text-secondary"
@@ -129,12 +140,12 @@ const CategoryGroup = ({ name, feeds, filter, setFilter, deleteCategory, editCat
                   setIsEditing(true)
                    setShowMenu(false)
                 }}
-                className="block w-full px-4 py-2 hover:bg-light-bg-primary dark:hover:bg-dark-bg-primary">
+                className="block w-full px-4 py-2 hover:bg-light-bg-primary dark:hover:bg-dark-bg-primary cursor-pointer">
                   Edit Category
               </button>
             </li>
             <li>
-              <button className="block w-full px-4 py-2 hover:bg-light-bg-primary dark:hover:bg-dark-bg-primary" onClick={() => handleDeleteCategory(name)}>
+              <button className="block w-full px-4 py-2 hover:bg-light-bg-primary dark:hover:bg-dark-bg-primary cursor-pointer" onClick={() => handleDeleteCategory(name)}>
                 Delete Category
               </button>
             </li>
@@ -143,24 +154,71 @@ const CategoryGroup = ({ name, feeds, filter, setFilter, deleteCategory, editCat
       )}
 
       {isOpen && (
-        <div className="ml-5 flex flex-col gap-0.5 border-l border-light-border-subtle py-1 pl-3 dark:border-dark-border-subtle">
-          {feeds.map((feed) => (
-            <button
-              key={feed.feedUrl || feed.feed_url}
-              onClick={() => handleFeedClick(feed.title)}
-              className={`w-full rounded-md px-2 py-1.5 text-left text-xs transition-colors duration-150 ${
-                isFeedActive(feed.title)
-                  ? "bg-light-accent-subtle text-light-accent dark:bg-dark-accent-subtle dark:text-dark-accent"
-                  : "text-light-text-tertiary hover:bg-light-bg-secondary hover:text-light-text-primary dark:text-dark-text-tertiary dark:hover:bg-dark-bg-secondary dark:hover:text-dark-text-primary"
-              }`}
-            >
-              {feed.title}
-            </button>
-          ))}
+        <div className="relative">
+          <div className="ml-5 flex flex-col gap-0.5 border-l border-light-border-subtle py-1 pl-3 dark:border-dark-border-subtle">
+            {feeds.map((feed) => {
+              const feedId = feed.feedUrl || feed.feed_url;
+              const isMenuOpen = feedMenuOpen === feedId;
+
+              return (
+                <div className="relative" key={feedId}>
+                  <div className="flex items-start">
+                    <button
+                      onClick={() => handleFeedClick(feed.title)}
+                      className={`w-full rounded-md px-2 py-1.5 text-left text-xs transition-colors duration-150 ${
+                        isFeedActive(feed.title)
+                          ? "bg-light-accent-subtle text-light-accent dark:bg-dark-accent-subtle dark:text-dark-accent"
+                          : "text-light-text-tertiary hover:bg-light-bg-secondary hover:text-light-text-primary dark:text-dark-text-tertiary dark:hover:bg-dark-bg-secondary dark:hover:text-dark-text-primary"
+                      }`}
+                    >
+                      {feed.title}
+                    </button>
+                    <button
+                      onClick={() => setFeedMenuOpen((prev) => (prev === feedId ? null : feedId))}
+                      className={`opacity-40 transition-opacity duration-150 cursor-pointer ${
+                        isMenuOpen
+                          ? "text-light-accent dark:text-dark-accent"
+                          : "text-light-text-secondary dark:text-dark-text-secondary"
+                      } hover:opacity-100 hover:text-light-accent dark:hover:text-dark-accent`}
+                    >
+                      <span className="text-lg">...</span>
+                    </button>
+                  </div>
+
+                  {isMenuOpen && (
+                    <div className="absolute z-10 mt-2 w-48 rounded-md bg-light-bg-secondary shadow-lg dark:bg-dark-bg-secondary">
+                      <ul className="py-1 text-sm text-light-text-secondary dark:text-dark-text-secondary">
+                        <li>
+                          <button
+                          onClick={() => {
+                            handleFeedMove(feedId, name)
+                            setFeedMenuOpen(null) // Close the menu after moving the feed
+                          }}
+                          className="block w-full px-4 py-2 hover:bg-light-bg-primary dark:hover:bg-dark-bg-primary cursor-pointer">
+                            Move Feed
+                          </button>
+                        </li>
+                        <li>
+                          <button
+                            className="block w-full px-4 py-2 hover:bg-light-bg-primary dark:hover:bg-dark-bg-primary cursor-pointer"
+                            onClick={() => handleDeleteFeed(feed.url)}
+                          >
+                            Delete Feed
+                          </button>
+                        </li>
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
         </div>
       )}
     </div>
   )
 }
+
+
 
 export default CategoryGroup
